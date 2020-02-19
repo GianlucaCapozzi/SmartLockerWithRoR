@@ -182,8 +182,6 @@ You obtain the bin file which you have to copy inside the Nucleo board, using a 
 					[<img src="https://github.com/GianlucaCapozzi/SmartLockerWithRoR/blob/master/images/inIcon.png" height="20" width="20" >](https://www.linkedin.com/in/gianluca-capozzi-b9a75a16b/)
 - Gianmarco Cariggi [<img src="https://github.com/GianlucaCapozzi/SmartLockerWithRoR/blob/master/images/gitIcon.png" height="20" width="20" >](https://github.com/giacar)
 					[<img src="https://github.com/GianlucaCapozzi/SmartLockerWithRoR/blob/master/images/inIcon.png" height="20" width="20" >](https://www.linkedin.com/in/gianmarco-cariggi/)
-- Gianluca Galli  [<img src="https://github.com/GianlucaCapozzi/SmartLockerWithRoR/blob/master/images/gitIcon.png" height="20" width="20" >](https://github.com/GianlucaCapozzi)
-					[<img src="https://github.com/GianlucaCapozzi/SmartLockerWithRoR/blob/master/images/inIcon.png" height="20" width="20" >](https://www.linkedin.com/in/galli-gianluca/)
 
 ## LICENSE
 
