@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -18,32 +19,22 @@
             android:layout_gravity="center_horizontal" />
 
         <!--  Email Label -->
-        <android.support.design.widget.TextInputLayout
+
+        <EditText android:id="@+id/input_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/input_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
-                android:hint="Email" />
-        </android.support.design.widget.TextInputLayout>
+            android:inputType="textEmailAddress"
+            android:hint="Email" />
 
         <!--  Password Label -->
-        <android.support.design.widget.TextInputLayout
+
+        <EditText android:id="@+id/input_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/input_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                android:hint="Password"/>
-        </android.support.design.widget.TextInputLayout>
+            android:inputType="textPassword"
+            android:hint="Password"/>
 
-        <android.support.v7.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_login"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -62,4 +53,4 @@
 
     </LinearLayout>
 
-</ScrollView>
+</androidx.core.widget.NestedScrollView>
