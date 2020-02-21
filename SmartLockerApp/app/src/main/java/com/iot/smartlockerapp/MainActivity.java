@@ -9,6 +9,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     return false;
                 }
-            }
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +41,16 @@ public class MainActivity extends AppCompatActivity {
         catch (NullPointerException e){}
         setContentView(R.layout.activity_main);
         bottomNavigation = (BottomNavigationView) findViewById(R.id.navigation);
+        bottomNavigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+        String name = getIntent().getStringExtra("name");
+        openFragment(HomeFragment.newInstance(name));
 
     }
 
     private void openFragment(Fragment fragment){
-
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }
