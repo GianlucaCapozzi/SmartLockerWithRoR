@@ -2,6 +2,7 @@ package com.iot.smartlockerapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -16,20 +17,6 @@ public class MainActivity extends AppCompatActivity {
 
     static String url = "http://10.0.2.2:3000";
 
-    private BottomNavigationView bottomNavigation;
-
-    BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
-            new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    switch (item.getItemId()) {
-                        case R.id.navigation_home:
-                            String name = getIntent().getStringExtra("name");
-                            openFragment(HomeFragment.newInstance(name));
-                    }
-                    return false;
-                }
-            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,12 +27,34 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (NullPointerException e){}
         setContentView(R.layout.activity_main);
-        bottomNavigation = (BottomNavigationView) findViewById(R.id.navigation);
-        bottomNavigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+
+        Log.d("MAIN", "Before navigation");
+        BottomNavigationView bottomNavigation = (BottomNavigationView) findViewById(R.id.navigation);
+        bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        Log.d("MAIN", "After navigation");
         String name = getIntent().getStringExtra("name");
         openFragment(HomeFragment.newInstance(name));
 
     }
+
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    String name = getIntent().getStringExtra("name");
+                    Log.d("MAIN", name);
+                    switch (item.getItemId()) {
+                        case R.id.navigation_home:
+                            openFragment(HomeFragment.newInstance(name));
+                            return true;
+                        case R.id.navigation_account:
+                            openFragment(AccountFragment.newInstance(name));
+                            return false;
+                    }
+                    return false;
+                }
+            };
 
     private void openFragment(Fragment fragment){
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
