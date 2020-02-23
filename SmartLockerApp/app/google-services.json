@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "291313214399",
+    "firebase_url": "https://fitboxwithror.firebaseio.com",
+    "project_id": "fitboxwithror",
+    "storage_bucket": "fitboxwithror.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:291313214399:android:41427268ebf57f301af70a",
+        "android_client_info": {
+          "package_name": "com.iot.smartlockerapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "291313214399-keekno5icfc6s1l2hcc7paqh24ak34g4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.iot.smartlockerapp",
+            "certificate_hash": "6a4c3ba35eda9c886e4e5a047af3bdabe7f7d332"
+          }
+        },
+        {
+          "client_id": "291313214399-u3chopodo52trhechoeoaf938vk139a1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPfubo53rACNipKwHOsuL5U1ZuOmbggME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "291313214399-u3chopodo52trhechoeoaf938vk139a1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
