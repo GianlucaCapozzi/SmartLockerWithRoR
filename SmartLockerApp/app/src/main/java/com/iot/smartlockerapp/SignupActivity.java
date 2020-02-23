@@ -3,7 +3,6 @@ package com.iot.smartlockerapp;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +17,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -95,6 +95,8 @@ public class SignupActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        //Log.d("PACKET", regForm.toString());
+
         RequestBody body = RequestBody.create(regForm.toString(), MediaType.parse("application/json; charset=utf-8"));
         postRequest(MainActivity.url+"/signup", body);
 
@@ -112,6 +114,9 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void postRequest(String postUrl, RequestBody postBody) {
+
+        //Log.d("ERR", postBody.toString());
+
         OkHttpClient client = new OkHttpClient();
 
         final Request request = new Request.Builder()
@@ -121,21 +126,24 @@ public class SignupActivity extends AppCompatActivity {
                 .header("Content-Type", "application/json")
                 .build();
 
+        Log.d("OK", "request done");
+
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            public void onFailure(@NotNull Call call, final @NotNull IOException e) {
                 call.cancel();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Log.d("ERR", "in onFailure");
+                        e.printStackTrace();
                         onSignupFailed();
                     }
                 });
             }
 
             @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull final Response response) throws IOException {
                 final String responseString = response.body().string().trim();
                 runOnUiThread(new Runnable() {
                     @Override
@@ -144,6 +152,7 @@ public class SignupActivity extends AppCompatActivity {
                             onSignupSuccess();
                         }
                         else{
+                            Log.d("ERR", response.body().toString());
                             Log.d("ERR", "onResponse failed");
                             onSignupFailed();
                         }
@@ -156,13 +165,25 @@ public class SignupActivity extends AppCompatActivity {
     private void onSignupSuccess() {
         _signupButton.setEnabled(true);
         setResult(RESULT_OK, null);
-        finish();
+
+        String name = _nameText.getText().toString();
+
+        Intent i = new Intent(this, MainActivity.class);
+        i.putExtra("name", name);
+
+        startActivity(i);
     }
 
     private void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), "Signup failed", Toast.LENGTH_LONG).show();
 
         _signupButton.setEnabled(true);
+        String name = _nameText.getText().toString();
+
+        Intent i = new Intent(this, MainActivity.class);
+        i.putExtra("name", name);
+
+        startActivity(i);
     }
 
     private boolean validate() {
