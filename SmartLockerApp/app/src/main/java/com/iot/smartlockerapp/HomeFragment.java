@@ -11,10 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class HomeFragment extends Fragment {
 
-    private String name;
     private TextView usernameTV;
+
+    private String name;
+
+    private FirebaseFirestore db;
 
     public HomeFragment() {
     }
