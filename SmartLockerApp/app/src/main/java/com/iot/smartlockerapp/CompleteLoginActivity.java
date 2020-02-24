@@ -1,6 +1,5 @@
 package com.iot.smartlockerapp;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Base64;
@@ -11,16 +10,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
-import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -29,24 +28,27 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+public class CompleteLoginActivity extends AppCompatActivity {
 
-public class SignupActivity extends AppCompatActivity {
+    private static final String TAG = "ConfSignupActivity";
 
-    private static final String TAG = "SignupActivity";
+    @BindView(R.id.input_name) EditText _nameText;
+    @BindView(R.id.input_surname) EditText _surnText;
+    @BindView(R.id.input_age) EditText _ageText;
+    @BindView(R.id.input_weight) EditText _weightText;
+    @BindView(R.id.btn_confsignup) Button _signupButton;
 
-    //@BindView(R.id.input_name) EditText _nameText;
-    @BindView(R.id.input_email) EditText _emailText;
-    @BindView(R.id.input_password) EditText _passwordText;
-    @BindView(R.id.input_reEnterPassword) EditText _reEnterPasswordText;
-    @BindView(R.id.btn_signup) Button _signupButton;
-    @BindView(R.id.link_login) TextView _loginLink;
+    private String name;
+    private String surname;
+    private String age;
+    private String weight;
 
     private String base64Credentials;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
+        setContentView(R.layout.activity_complogin);
         ButterKnife.bind(this);
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
@@ -56,20 +58,15 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
-        _loginLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Finish the registration screen and return to the Login activity
-                Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
-                startActivity(intent);
-                finish();
-                //overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
-            }
-        });
     }
 
     public void signup() {
         Log.d(TAG, "Signup");
+
+        name = _nameText.getText().toString();
+        surname = _surnText.getText().toString();
+        age = _ageText.getText().toString();
+        weight = _weightText.getText().toString();
 
         if (!validate()) {
             onSignupFailed();
@@ -78,17 +75,17 @@ public class SignupActivity extends AppCompatActivity {
 
         _signupButton.setEnabled(false);
 
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+        base64Credentials = getIntent().getStringExtra("token");
 
-        String credentials = email + ":" + password;
-        base64Credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+        Log.d(TAG, base64Credentials);
 
         JSONObject regForm = new JSONObject();
 
         try {
-            regForm.put("email", email);
-            regForm.put("password", base64Credentials);
+            regForm.put("name", name);
+            regForm.put("surname", surname);
+            regForm.put("age", age);
+            regForm.put("weight", weight);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -96,19 +93,19 @@ public class SignupActivity extends AppCompatActivity {
         //Log.d("PACKET", regForm.toString());
 
         RequestBody body = RequestBody.create(regForm.toString(), MediaType.parse("application/json; charset=utf-8"));
-        postRequest(MainActivity.url+"/signup", body);
+        postRequest(MainActivity.url+"/confsignup", body);
 
-        /*
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
-                        onSignupSuccess();
-                        // onSignupFailed();
-                    }
-                }, 3000);
-        */
+    /*
+    new android.os.Handler().postDelayed(
+            new Runnable() {
+                public void run() {
+                    // On complete call either onSignupSuccess or onSignupFailed
+                    // depending on success
+                    onSignupSuccess();
+                    // onSignupFailed();
+                }
+            }, 3000);
+    */
     }
 
     private void postRequest(String postUrl, RequestBody postBody) {
@@ -122,9 +119,8 @@ public class SignupActivity extends AppCompatActivity {
                 .post(postBody)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
+                .header("Authorization", base64Credentials)
                 .build();
-
-        // DOUBLE-CHECK EMAIL
 
         Log.d("OK", "request done");
 
@@ -166,8 +162,10 @@ public class SignupActivity extends AppCompatActivity {
         _signupButton.setEnabled(true);
         setResult(RESULT_OK, null);
 
-        Intent i = new Intent(this, CompleteLoginActivity.class);
-        i.putExtra("token", base64Credentials);
+        String user = name + " " + surname;
+
+        Intent i = new Intent(this, MainActivity.class);
+        i.putExtra("user", user);
 
         startActivity(i);
     }
@@ -177,43 +175,33 @@ public class SignupActivity extends AppCompatActivity {
 
         _signupButton.setEnabled(true);
 
-        Intent i = new Intent(this, CompleteLoginActivity.class);
-        i.putExtra("token", base64Credentials);
+        String username = name + " " + surname;
+
+        Intent i = new Intent(this, MainActivity.class);
+        i.putExtra("user", username);
 
         startActivity(i);
+
+
     }
 
     private boolean validate() {
         boolean valid = true;
 
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
-        String reEnterPassword = _reEnterPasswordText.getText().toString();
-
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _emailText.setError("enter a valid email address");
+        if (name.isEmpty() || name.length() < 3) {
+            _nameText.setError("at least 3 characters");
             valid = false;
         } else {
-            _emailText.setError(null);
+            _nameText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            _passwordText.setError("between 4 and 10 alphanumeric characters");
+        if (surname.isEmpty() || surname.length() < 3) {
+            _surnText.setError("at least 3 characters");
             valid = false;
         } else {
-            _passwordText.setError(null);
-        }
-
-        if (reEnterPassword.isEmpty() || reEnterPassword.length() < 4 || reEnterPassword.length() > 10 || !(reEnterPassword.equals(password))) {
-            _reEnterPasswordText.setError("Password Do not match");
-            valid = false;
-        } else {
-            _reEnterPasswordText.setError(null);
+            _surnText.setError(null);
         }
 
         return valid;
     }
-
-
-
 }

@@ -16,11 +16,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -56,6 +60,7 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if(getArguments() != null){
             user = getArguments().getString("user");
+            Log.d(TAG, user);
         }
     }
 
@@ -87,7 +92,7 @@ public class HomeFragment extends Fragment {
                 .setQuery(query, Booking.class)
                 .build();
 
-        Log.d(TAG, "In activeBookings");
+        Log.d(TAG, response.toString());
 
         bookingAdapter = new FirestoreRecyclerAdapter<Booking, BookingActiveHolder>(response) {
 
@@ -101,6 +106,8 @@ public class HomeFragment extends Fragment {
 
             @Override
             protected void onBindViewHolder(@NonNull BookingActiveHolder bookingHolder, int i, @NonNull final Booking booking) {
+                Log.d(TAG, booking.getPark());
+                Log.d(TAG, booking.getLockHash());
                 getLockInfo(booking.getPark(), booking.getLockHash());
                 bookingHolder.parkB.setText(booking.getPark());
                 bookingHolder.dateB.setText(booking.getDate());
@@ -136,12 +143,26 @@ public class HomeFragment extends Fragment {
 
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        bookingAdapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        bookingAdapter.stopListening();
+    }
+
     private void getLockInfo(String parkName, String lockHash){
         DocumentReference docRef = db.collection("parks/"+parkName.hashCode()+"/lockers").document(lockHash);
+        Log.d(TAG, docRef.toString());
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 Locker lock = documentSnapshot.toObject(Locker.class);
+                Log.d(TAG, lock.toString());
                 lockName = lock.getLockName();
                 Log.d(TAG, "LockName: " + lockName);
                 lockState = lock.isOpen();

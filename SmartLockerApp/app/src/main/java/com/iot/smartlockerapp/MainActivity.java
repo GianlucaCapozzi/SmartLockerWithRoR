@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigation = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Log.d("MAIN", "After navigation");
-        String name = getIntent().getStringExtra("name");
+        String name = getIntent().getStringExtra("user");
         openFragment(HomeFragment.newInstance(name));
 
     }
@@ -42,14 +42,14 @@ public class MainActivity extends AppCompatActivity {
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    String name = getIntent().getStringExtra("name");
-                    Log.d("MAIN", name);
+                    String user = getIntent().getStringExtra("user");
+                    Log.d("MAIN", user);
                     switch (item.getItemId()) {
                         case R.id.navigation_home:
-                            openFragment(HomeFragment.newInstance(name));
+                            openFragment(HomeFragment.newInstance(user));
                             return true;
                         case R.id.navigation_account:
-                            openFragment(AccountFragment.newInstance(name));
+                            openFragment(AccountFragment.newInstance(user));
                             return false;
                     }
                     return false;

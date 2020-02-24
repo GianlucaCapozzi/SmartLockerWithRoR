@@ -85,7 +85,6 @@ public class LoginActivity extends AppCompatActivity {
 
         JSONObject loginForm = new JSONObject();
         try {
-            loginForm.put("subject", "login");
             loginForm.put("email", email);
             loginForm.put("password", base64Credentials);
         } catch (JSONException e) {

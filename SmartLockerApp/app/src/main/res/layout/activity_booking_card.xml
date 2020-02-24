@@ -86,7 +86,7 @@
         android:fontFamily="@font/montserrat_regular"
         android:text="@string/delete_booking"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.475"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/idLeaveBtn" />
 </androidx.constraintlayout.widget.ConstraintLayout>
