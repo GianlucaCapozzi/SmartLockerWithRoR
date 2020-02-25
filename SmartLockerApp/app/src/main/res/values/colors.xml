@@ -5,6 +5,9 @@
     <color name="primary_darker">#297927</color>
     <color name="accent">#D81B60</color>
 
+    <color name="colorAvailable">#a4c639</color>
+    <color name="colorBusy">#ff0000</color>
+
     <color name="black">#000000</color>
     <color name="jet">#222222</color>
     <color name="oil">#333333</color>

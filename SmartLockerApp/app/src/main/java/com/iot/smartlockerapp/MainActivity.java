@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Log.d("MAIN", "After navigation");
         String name = getIntent().getStringExtra("user");
-        openFragment(HomeFragment.newInstance(name));
+        openFragment(BookFragment.newInstance(name));
 
     }
 
@@ -50,7 +50,10 @@ public class MainActivity extends AppCompatActivity {
                             return true;
                         case R.id.navigation_account:
                             openFragment(AccountFragment.newInstance(user));
-                            return false;
+                            return true;
+                        case R.id.navigation_book:
+                            openFragment(BookFragment.newInstance(user));
+                            return true;
                     }
                     return false;
                 }
