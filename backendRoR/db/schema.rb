@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_24_191315) do
+ActiveRecord::Schema.define(version: 2020_02_25_212607) do
 
   create_table "blacklisted_tokens", force: :cascade do |t|
     t.string "token"
@@ -26,6 +26,10 @@ ActiveRecord::Schema.define(version: 2020_02_24_191315) do
     t.string "password_digest"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "name"
+    t.string "surname"
+    t.integer "age"
+    t.decimal "weight"
   end
 
   add_foreign_key "blacklisted_tokens", "users"
