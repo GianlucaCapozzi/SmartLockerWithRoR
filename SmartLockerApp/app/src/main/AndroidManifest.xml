@@ -56,6 +56,24 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+        <activity android:name=".CardToBookActivity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity android:name=".BookedNearYouActivity"
+            android:parentActivityName=".CardToBookActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".CardToBookActivity" />
+        </activity>
+        <activity android:name=".LockerActivity"
+            android:parentActivityName=".BookedNearYouActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".BookedNearYouActivity" />
+        </activity>
     </application>
 
 </manifest>

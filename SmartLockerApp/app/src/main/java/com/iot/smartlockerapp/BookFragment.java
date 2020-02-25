@@ -107,6 +107,7 @@ public class BookFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Intent i = new Intent(v.getContext(), CardToBookActivity.class);
+                        i.putExtra("user", user);
                         i.putExtra("parkAddress", toBook.getParkAddress());
                         i.putExtra("parkName", toBook.getParkName());
                         v.getContext().startActivity(i);

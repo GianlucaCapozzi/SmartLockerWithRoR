@@ -1,22 +1,22 @@
 package com.iot.smartlockerapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
     static String url = "http://10.0.2.2:3000";
 
+    private String user;
+
+    static String TAG = "MAIN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Log.d("MAIN", "After navigation");
         String name = getIntent().getStringExtra("user");
-        openFragment(BookFragment.newInstance(name));
+        openFragment(HomeFragment.newInstance(name));
 
     }
 
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    String user = getIntent().getStringExtra("user");
+                    user = getIntent().getStringExtra("user");
                     Log.d("MAIN", user);
                     switch (item.getItemId()) {
                         case R.id.navigation_home:

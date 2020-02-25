@@ -81,7 +81,7 @@ public class BookedNearYouActivity extends AppCompatActivity {
         setContentView(R.layout.activity_nearyou);
 
         parkName = getIntent().getStringExtra("parkName");
-        user = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        user = getIntent().getStringExtra("user");
 
         friendsRV = (RecyclerView) findViewById(R.id.idFriendsRV);
         friendsRV.setLayoutManager(new LinearLayoutManager(this));
@@ -137,10 +137,13 @@ public class BookedNearYouActivity extends AppCompatActivity {
             public void onPositiveButtonClick(Date date) {
                 Intent i = new Intent(getApplicationContext(), LockerActivity.class);  // Go to lockerActivity
                 i.putExtra("parkName", parkName);
+                Log.d(TAG, user);
+                i.putExtra("user", user);
                 DateFormat dateFormat = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
                 String strDate = dateFormat.format(date);
                 i.putExtra("date", strDate);
                 startActivity(i);
+                finish();
             }
 
             @Override

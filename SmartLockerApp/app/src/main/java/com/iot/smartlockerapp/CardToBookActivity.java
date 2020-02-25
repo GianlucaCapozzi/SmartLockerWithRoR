@@ -85,7 +85,9 @@ public class CardToBookActivity extends AppCompatActivity {
 
         parkName = getIntent().getStringExtra("parkName");
         parkAddress = getIntent().getStringExtra("parkAddress");
-        user = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        user = getIntent().getStringExtra("user");
+
+        Log.d(TAG, user);
 
         nearYou = new ArrayList<Booking>();
         getNearBookings();
@@ -118,9 +120,11 @@ public class CardToBookActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), BookedNearYouActivity.class);
+                i.putExtra("user", user);
                 i.putExtra("parkName", parkName);
                 i.putExtra("nearYou", (Serializable) nearYou);
                 startActivity(i);
+                finish();
             }
         });
 

@@ -54,6 +54,7 @@ public class CardBookingActivity extends AppCompatActivity {
     private TextView parkNameTV;
     private TextView lockNameTV;
 
+    private String user;
     private String lockName;
     private String lockHash;
     private String parkName;
@@ -76,13 +77,12 @@ public class CardBookingActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        String user = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-
         setContentView(R.layout.activity_booking_card);
 
         parkNameTV = (TextView) findViewById(R.id.idParkName);
         lockNameTV = (TextView) findViewById(R.id.idLockName);
 
+        user = getIntent().getStringExtra("user");
         parkName = getIntent().getStringExtra("park");
         lockHash = getIntent().getStringExtra("lockHash");
         lockName = getIntent().getStringExtra("lockName");

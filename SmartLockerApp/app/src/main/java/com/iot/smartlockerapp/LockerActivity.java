@@ -34,7 +34,7 @@ public class LockerActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private RecyclerView lockerRV;
-    private String user = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+    private String user;
 
     private final static String TAG = "LockerAct";
     private String park;
@@ -56,6 +56,7 @@ public class LockerActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
+        user = getIntent().getStringExtra("user");
         park = getIntent().getStringExtra("parkName");
         date = getIntent().getStringExtra("date");
 
@@ -94,8 +95,8 @@ public class LockerActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             addBooking(user, park, date, locker.getLockName());
                             setLock(locker.getLockName(), user);
-                            Intent i = new Intent(v.getContext(), MainActivity.class);
-                            v.getContext().startActivity(i);
+                            //Intent i = new Intent(v.getContext(), MainActivity.class);
+                            finish();
                         }
                     });
                 }
@@ -117,6 +118,8 @@ public class LockerActivity extends AppCompatActivity {
     }
 
     private void addBooking(String user, String park, String strDate, String lockName){
+
+        Log.d(TAG, user);
 
         String lockPark = park + lockName;
         int lockHash = lockPark.hashCode();
