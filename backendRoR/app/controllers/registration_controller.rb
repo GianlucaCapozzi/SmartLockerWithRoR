@@ -1,7 +1,7 @@
 class RegistrationController < ActionController::API
     
     def registrate
-        command = RegisterUser.call(params[:username], params[:email], params[:password])
+        command = RegisterUser.call(params[:email], params[:password])
 
         if command.success?
             render json: { result: 'User created'}, status: :ok
