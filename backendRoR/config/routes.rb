@@ -5,5 +5,6 @@ Rails.application.routes.draw do
   get 'logout', to: 'blacklisting#blacklist'
 
   post 'signup', to: 'registration#registrate'
+  post 'confsignup', to: 'configuration#complete'
   
 end
