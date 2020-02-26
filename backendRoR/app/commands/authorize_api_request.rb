@@ -13,14 +13,15 @@ class AuthorizeApiRequest
     
     def check_token(token)
         @decoded_token = decoded_auth_token(token)
-        if @decoded_token[:exp] >= Time.now.to_i
+        if @decoded_token[:exp] < Time.now.to_i
             errors.add(:token, 'Token expired, please login again')
             return false
-        elsif BlacklistedToken.exists?(token: @decoded_token)
+        elsif BlacklistedToken.exists?(token: http_auth_header)
             errors.add(:token, 'Token in blacklist, please login again')
             return false
         else
             return true
+        end
     end
   
     private
