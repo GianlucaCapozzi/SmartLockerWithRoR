@@ -49,8 +49,8 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-firestore:5.0.0'
 
     //Maps
-
     implementation "com.google.android.gms:play-services-maps:16.1.0"
 
+    implementation 'com.mikhaellopez:circularimageview:4.2.0'
 
 }

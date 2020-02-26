@@ -21,6 +21,13 @@
             tools:layout_editor_absoluteX="-33dp"
             tools:layout_editor_absoluteY="674dp" />
 
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="67dp"
+            android:layout_height="61dp"
+            app:srcCompat="@drawable/fitbox_icon" />
+
+
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
