@@ -6,10 +6,22 @@ class AuthorizeApiRequest
     end
   
     def call
-        user
+        user if account_activated(http_auth_header)
     end
 
     public 
+
+    def account_activated(token) 
+        if check_token(token)
+            user_found = User.find(decoded_auth_token[:user_id])
+            if user_found.email_confirmed
+                return true
+            else
+                errors.add(:token, 'Account not activated')
+                return false
+            end
+        end
+    end
     
     def check_token(token)
         @decoded_token = decoded_auth_token(token)
