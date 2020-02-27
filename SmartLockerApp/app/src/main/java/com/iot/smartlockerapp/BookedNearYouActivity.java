@@ -94,7 +94,7 @@ public class BookedNearYouActivity extends AppCompatActivity {
         nearYou = (List<Booking>) getIntent().getSerializableExtra("nearYou");
         Log.d(TAG, "Size near you: " + nearYou.size());
 
-        bookedNearAdapter = new BookedNearYouAdapter(nearYou);
+        bookedNearAdapter = new BookedNearYouAdapter(nearYou, user);
         friendsRV.setAdapter(bookedNearAdapter);
 
         // CALENDAR WIDGET
