@@ -7,7 +7,10 @@ class RegisterUser
     end
 
     def call
-        User.create(email: @email , password: @password , password_confirmation: @password) if signup_check
+        @user = User.create(email: @email , password: @password , password_confirmation: @password) if signup_check
+        @user = User.find_by_email(@email)
+        create_token(@user)
+        UserMailer.registration_confirmation(@user).deliver
     end
 
     private
@@ -24,5 +27,12 @@ class RegisterUser
             return true
         end
         
+    end
+
+    def create_token(user)
+        if user.confirm_token.blank? or user.confirm_token.nil?
+            user.confirm_token = SecureRandom.urlsafe_base64.to_s
+            user.save
+        end
     end
 end
