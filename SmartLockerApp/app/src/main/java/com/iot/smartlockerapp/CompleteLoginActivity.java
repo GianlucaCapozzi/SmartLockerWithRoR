@@ -1,12 +1,16 @@
 package com.iot.smartlockerapp;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
@@ -26,10 +30,19 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.internal.Utils;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -54,6 +67,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
     private String surname;
     private String age;
     private String weight;
+    private String imageUri;
 
     private String base64Credentials;
 
@@ -110,17 +124,24 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
-            String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContentResolver().openFileDescriptor(selectedImage, "r");
+                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
 
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] b = baos.toByteArray();
+                imageUri = Base64.encodeToString(b, Base64.DEFAULT);
 
-            _profilePict.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                parcelFileDescriptor.close();
+                _profilePict.setImageBitmap(image);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
     }
@@ -142,7 +163,12 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         base64Credentials = getIntent().getStringExtra("token");
 
+        if(imageUri == null) {
+            imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
+        }
+
         Log.d(TAG, base64Credentials);
+        Log.d(TAG, imageUri);
 
         JSONObject regForm = new JSONObject();
 
@@ -151,6 +177,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
             regForm.put("surname", surname);
             regForm.put("age", age);
             regForm.put("weight", weight);
+            regForm.put("img", imageUri);
         } catch (JSONException e) {
             e.printStackTrace();
         }

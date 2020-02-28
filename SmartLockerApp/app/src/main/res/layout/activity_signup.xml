@@ -5,8 +5,6 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!--  Email Label -->
-
     <ImageView
         android:id="@+id/logoSignup"
         android:layout_width="wrap_content"
@@ -19,15 +17,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Password Label -->
-
     <EditText
         android:id="@+id/input_email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="102dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="96dp"
+        android:layout_width="365dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="23dp"
         android:ems="10"
         android:fontFamily="@font/montserrat_regular"
         android:hint="@string/email"
@@ -38,11 +34,11 @@
         app:layout_constraintTop_toBottomOf="@+id/logoSignup" />
 
     <EditText android:id="@+id/input_password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="102dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="96dp"
+        android:layout_width="365dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="23dp"
         android:ems="10"
         android:fontFamily="@font/montserrat_regular"
         android:inputType="textPassword"
@@ -54,11 +50,11 @@
     <!-- Password Re-enter Label -->
 
     <EditText android:id="@+id/input_reEnterPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="102dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="96dp"
+        android:layout_width="365dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="23dp"
         android:ems="10"
         android:fontFamily="@font/montserrat_regular"
         android:inputType="textPassword"

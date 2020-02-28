@@ -28,9 +28,11 @@ public class BookedNearYouAdapter extends RecyclerView.Adapter<BookedNearYouAdap
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private final String TAG = "NearYou";
+    private String user;
 
-    public BookedNearYouAdapter(List<Booking> list) {
+    public BookedNearYouAdapter(List<Booking> list, String user) {
         bList = list;
+        this.user = user;
     }
 
     @NonNull
