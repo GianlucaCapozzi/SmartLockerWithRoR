@@ -64,9 +64,11 @@ public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> 
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 for(QueryDocumentSnapshot doc : task.getResult()) {
+                                   Log.d("PARKADAPTER", doc.getId());
                                     Intent i = new Intent(v.getContext(), BookActivity.class);
                                     i.putExtra("user", user);
                                     i.putExtra("city", doc.getId());
+                                    v.getContext().startActivity(i);
                                 }
                             }
                         });

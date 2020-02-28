@@ -51,11 +51,18 @@
             android:name=".CompleteLoginActivity"
             android:theme="@style/AppTheme.Dark" />
         <activity
-            android:name=".CardBookingActivity"
+            android:name=".BookActivity"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".CardBookingActivity"
+            android:parentActivityName=".BookActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".BookActivity" />
         </activity>
         <activity android:name=".CardToBookActivity"
             android:parentActivityName=".MainActivity">

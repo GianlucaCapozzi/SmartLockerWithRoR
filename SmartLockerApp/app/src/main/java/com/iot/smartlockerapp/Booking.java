@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class Booking implements Serializable {
 
     private String user;
+    private String city;
     private String park;
     private String date;
     private boolean active;
@@ -32,6 +33,14 @@ public class Booking implements Serializable {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getPark() {

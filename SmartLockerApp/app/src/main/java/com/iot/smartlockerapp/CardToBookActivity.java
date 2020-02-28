@@ -61,6 +61,7 @@ public class CardToBookActivity extends AppCompatActivity {
     private String parkName;
     private String parkAddress;
     private String user;
+    private String city;
 
     // Firebase db
     private FirebaseFirestore db;
@@ -86,6 +87,7 @@ public class CardToBookActivity extends AppCompatActivity {
         parkName = getIntent().getStringExtra("parkName");
         parkAddress = getIntent().getStringExtra("parkAddress");
         user = getIntent().getStringExtra("user");
+        city = getIntent().getStringExtra("city");
 
         Log.d(TAG, user);
 
@@ -121,6 +123,7 @@ public class CardToBookActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), BookedNearYouActivity.class);
                 i.putExtra("user", user);
+                i.putExtra("city", city);
                 i.putExtra("parkName", parkName);
                 i.putExtra("nearYou", (Serializable) nearYou);
                 startActivity(i);
@@ -132,6 +135,7 @@ public class CardToBookActivity extends AppCompatActivity {
 
     private void getNearBookings(){
         db.collection("bookings")
+                .whereEqualTo("city", city)
                 .whereEqualTo("park", parkName)
                 .whereEqualTo("active", true)
                 .get()

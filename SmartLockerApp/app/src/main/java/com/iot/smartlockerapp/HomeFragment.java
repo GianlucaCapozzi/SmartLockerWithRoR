@@ -92,8 +92,6 @@ public class HomeFragment extends Fragment {
                 .setQuery(query, Booking.class)
                 .build();
 
-        Log.d(TAG, response.toString());
-
         bookingAdapter = new FirestoreRecyclerAdapter<Booking, BookingActiveHolder>(response) {
 
             @NonNull
@@ -108,7 +106,7 @@ public class HomeFragment extends Fragment {
             protected void onBindViewHolder(@NonNull BookingActiveHolder bookingHolder, int i, @NonNull final Booking booking) {
                 Log.d(TAG, booking.getPark());
                 Log.d(TAG, booking.getLockHash());
-                getLockInfo(booking.getPark(), booking.getLockHash());
+                getLockInfo(booking.getCity(), booking.getPark(), booking.getLockHash());
                 bookingHolder.parkB.setText(booking.getPark());
                 bookingHolder.dateB.setText(booking.getDate());
                 bookingHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -155,8 +153,11 @@ public class HomeFragment extends Fragment {
         bookingAdapter.stopListening();
     }
 
-    private void getLockInfo(String parkName, String lockHash){
-        DocumentReference docRef = db.collection("parks/"+parkName.hashCode()+"/lockers").document(lockHash);
+    private void getLockInfo(String city, String parkName, String lockHash){
+        String cityPark = city + parkName;
+        Log.d(TAG, "cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers");
+        DocumentReference docRef = db.collection("cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash);
+
         Log.d(TAG, docRef.toString());
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override

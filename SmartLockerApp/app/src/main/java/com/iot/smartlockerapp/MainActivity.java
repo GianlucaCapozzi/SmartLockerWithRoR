@@ -48,11 +48,8 @@ public class MainActivity extends AppCompatActivity {
                         case R.id.navigation_home:
                             openFragment(HomeFragment.newInstance(user));
                             return true;
-                        case R.id.navigation_account:
-                            openFragment(SearchFragment.newInstance(user));
-                            return true;
                         case R.id.navigation_book:
-                            openFragment(BookFragment.newInstance(user));
+                            openFragment(SearchFragment.newInstance(user));
                             return true;
                     }
                     return false;

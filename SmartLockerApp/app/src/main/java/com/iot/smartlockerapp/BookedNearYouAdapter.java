@@ -55,6 +55,7 @@ public class BookedNearYouAdapter extends RecyclerView.Adapter<BookedNearYouAdap
                 Intent i = new Intent(v.getContext(), LockerActivity.class); // Go to lockerActivity
                 i.putExtra("parkName", b.getPark());
                 i.putExtra("date", b.getDate());
+                i.putExtra("city", b.getCity());
                 v.getContext().startActivity(i);
             }
         });

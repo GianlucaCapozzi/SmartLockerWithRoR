@@ -39,6 +39,7 @@ public class LockerActivity extends AppCompatActivity {
     private final static String TAG = "LockerAct";
     private String park;
     private String date;
+    private String city;
 
     private FirestoreRecyclerAdapter lockerAdapter;
 
@@ -59,6 +60,7 @@ public class LockerActivity extends AppCompatActivity {
         user = getIntent().getStringExtra("user");
         park = getIntent().getStringExtra("parkName");
         date = getIntent().getStringExtra("date");
+        city = getIntent().getStringExtra("city");
 
         lockerRV = (RecyclerView) findViewById(R.id.lockerRV);
         lockerRV.setLayoutManager(new GridLayoutManager(this, 6));
@@ -67,7 +69,8 @@ public class LockerActivity extends AppCompatActivity {
     }
 
     private void getLockers(){
-        Query query = db.collection("parks/"+park.hashCode()+"/lockers");
+        String cityPark = city + park;
+        Query query = db.collection("cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers");
 
         FirestoreRecyclerOptions<Locker> response = new FirestoreRecyclerOptions.Builder<Locker>()
                 .setQuery(query, Locker.class)
@@ -93,9 +96,8 @@ public class LockerActivity extends AppCompatActivity {
                     lockerHolder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            addBooking(user, park, date, locker.getLockName());
+                            addBooking(user, city, park, date, locker.getLockName());
                             setLock(locker.getLockName(), user);
-                            //Intent i = new Intent(v.getContext(), MainActivity.class);
                             finish();
                         }
                     });
@@ -117,19 +119,20 @@ public class LockerActivity extends AppCompatActivity {
 
     }
 
-    private void addBooking(String user, String park, String strDate, String lockName){
+    private void addBooking(String user, String city, String park, String strDate, String lockName){
 
         Log.d(TAG, user);
 
-        String lockPark = park + lockName;
+        String lockPark = city + park + lockName;
         int lockHash = lockPark.hashCode();
 
-        String hc = user + " " + park + " " + strDate + " " + lockPark;
+        String hc = user + " " + city + " " + park + " " + strDate + " " + lockPark;
         int bookHash = hc.hashCode();
 
         Map<String, Object> booking = new HashMap<>();
         booking.put("active", true);
         booking.put("user", user);
+        booking.put("city", city);
         booking.put("park", park);
         booking.put("date", strDate);
         booking.put("lockHash", Integer.toString(lockHash));
@@ -156,10 +159,12 @@ public class LockerActivity extends AppCompatActivity {
         lock.put("available", false);
         lock.put("open", false);
 
-        String lockPark = park + lockName;
+        String cityPark = city + park;
+
+        String lockPark = city + park + lockName;
         int lockHash = lockPark.hashCode();
 
-        db.collection("parks/"+park.hashCode()+"/lockers")
+        db.collection("cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers")
                 .document(Integer.toString(lockHash))
                 .set(lock, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

@@ -62,6 +62,7 @@ public class BookedNearYouActivity extends AppCompatActivity {
 
     private String parkName;
     private String user;
+    private String city;
 
     // Firebase db
     private FirebaseFirestore db;
@@ -82,6 +83,7 @@ public class BookedNearYouActivity extends AppCompatActivity {
 
         parkName = getIntent().getStringExtra("parkName");
         user = getIntent().getStringExtra("user");
+        city = getIntent().getStringExtra("city");
 
         friendsRV = (RecyclerView) findViewById(R.id.idFriendsRV);
         friendsRV.setLayoutManager(new LinearLayoutManager(this));
@@ -139,6 +141,7 @@ public class BookedNearYouActivity extends AppCompatActivity {
                 i.putExtra("parkName", parkName);
                 Log.d(TAG, user);
                 i.putExtra("user", user);
+                i.putExtra("city", city);
                 DateFormat dateFormat = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
                 String strDate = dateFormat.format(date);
                 i.putExtra("date", strDate);
