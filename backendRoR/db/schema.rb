@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_26_163509) do
+ActiveRecord::Schema.define(version: 2020_02_28_003615) do
 
   create_table "blacklisted_tokens", force: :cascade do |t|
     t.string "token"
@@ -32,6 +32,9 @@ ActiveRecord::Schema.define(version: 2020_02_26_163509) do
     t.decimal "weight"
     t.boolean "email_confirmed", default: false
     t.string "confirm_token"
+    t.string "img", default: "R.drawable.com_facebook_profile_picture_blank_portrait"
+    t.string "temp_pass"
+    t.boolean "reset_pass", default: false
   end
 
   add_foreign_key "blacklisted_tokens", "users"
