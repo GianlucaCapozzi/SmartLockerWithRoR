@@ -7,5 +7,7 @@ Rails.application.routes.draw do
 
   post 'signup', to: 'registration#registrate'
   post 'confsignup', to: 'configuration#configure'
+  post 'forgetpass', to: 'recovery#forget'
+  post 'recoverypass', to: 'recovery#change_pass'
   
 end

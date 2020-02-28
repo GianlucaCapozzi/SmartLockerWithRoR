@@ -1,8 +1,9 @@
 class ConfigureProfile
     prepend SimpleCommand
 
-    def initialize(headers = {}, name, surname, age, weight)
+    def initialize(headers = {}, img, name, surname, age, weight)
         @headers = headers
+        @img = img
         @name = name
         @surname = surname
         @age = age
@@ -21,6 +22,7 @@ class ConfigureProfile
         if check_token
             @user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token
             if @user
+                @user.img = @img
                 @user.name = @name
                 @user.surname = @surname
                 @user.age = @age
