@@ -39,6 +39,7 @@ public class HomeFragment extends Fragment {
     private FirestoreRecyclerAdapter bookingAdapter;
 
     private String user;
+    private String email;
     private String lockName;
     private boolean lockState;
 
@@ -47,10 +48,11 @@ public class HomeFragment extends Fragment {
     public HomeFragment() {
     }
 
-    public static HomeFragment newInstance(String user) {
+    public static HomeFragment newInstance(String user, String email) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
         args.putString("user", user);
+        args.putString("email", email);
         fragment.setArguments(args);
         return fragment;
     }
@@ -60,6 +62,7 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if(getArguments() != null){
             user = getArguments().getString("user");
+            email = getArguments().getString("email");
             Log.d(TAG, user);
         }
     }
@@ -85,7 +88,7 @@ public class HomeFragment extends Fragment {
 
     private void getUserActiveBookings(){
         Query query = db.collection("bookings")
-                .whereEqualTo("user", user)
+                .whereEqualTo("user", email)
                 .whereEqualTo("active", true);
 
         FirestoreRecyclerOptions<Booking> response = new FirestoreRecyclerOptions.Builder<Booking>()

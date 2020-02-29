@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     static String url = "http://10.0.2.2:3000";
 
     private String user;
+    private String email;
 
     static String TAG = "MAIN";
 
@@ -33,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Log.d("MAIN", "After navigation");
         String name = getIntent().getStringExtra("user");
-        openFragment(HomeFragment.newInstance(name));
+        String email = getIntent().getStringExtra("email");
+        openFragment(HomeFragment.newInstance(name, email));
 
     }
 
@@ -43,13 +45,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                     user = getIntent().getStringExtra("user");
+                    email = getIntent().getStringExtra("email");
                     Log.d("MAIN", user);
                     switch (item.getItemId()) {
                         case R.id.navigation_home:
-                            openFragment(HomeFragment.newInstance(user));
+                            openFragment(HomeFragment.newInstance(user, email));
                             return true;
                         case R.id.navigation_book:
-                            openFragment(SearchFragment.newInstance(user));
+                            openFragment(SearchFragment.newInstance(email));
                             return true;
                     }
                     return false;

@@ -70,6 +70,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
     private String imageUri;
 
     private String base64Credentials;
+    private String email;
 
     private final static int RESULT_LOAD_IMAGE = 1;
 
@@ -162,6 +163,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
         _signupButton.setEnabled(false);
 
         base64Credentials = getIntent().getStringExtra("token");
+        email = getIntent().getStringExtra("email");
 
         if(imageUri == null) {
             imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
@@ -236,13 +238,20 @@ public class CompleteLoginActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(responseString.equals("success")){
-                            onSignupSuccess();
-                        }
-                        else{
-                            Log.d("ERR", response.body().toString());
-                            Log.d("ERR", "onResponse failed");
-                            onSignupFailed();
+                        try {
+                            JSONObject json = new JSONObject(response.body().string());
+                            String loginResponseString = json.getString("response");
+                            Log.d("LOGIN", "Response from the server: " + loginResponseString);
+                            if(loginResponseString.equals("success")) {
+                                onSignupSuccess();
+                            }
+                            else {
+                                onSignupFailed();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -258,7 +267,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         Intent i = new Intent(this, MainActivity.class);
         i.putExtra("user", user);
-
+        i.putExtra("email", email);
         startActivity(i);
     }
 
@@ -271,6 +280,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         Intent i = new Intent(this, MainActivity.class);
         i.putExtra("user", username);
+        i.putExtra("email", email);
 
         startActivity(i);
 

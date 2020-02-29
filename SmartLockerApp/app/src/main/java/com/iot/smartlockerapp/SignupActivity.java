@@ -168,6 +168,7 @@ public class SignupActivity extends AppCompatActivity {
 
         Intent i = new Intent(this, CompleteLoginActivity.class);
         i.putExtra("token", base64Credentials);
+        i.putExtra("email", _emailText.getText().toString());
 
         startActivity(i);
     }
