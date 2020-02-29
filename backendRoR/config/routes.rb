@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   
   post 'login', to: 'authentication#authenticate'
   post 'logout', to: 'blacklisting#blacklist'
-  post 'activation/:id', to: 'registration#confirm_email'
+  get 'activation/:id', to: 'registration#confirm_email'
 
   post 'signup', to: 'registration#registrate'
   post 'confsignup', to: 'configuration#configure'

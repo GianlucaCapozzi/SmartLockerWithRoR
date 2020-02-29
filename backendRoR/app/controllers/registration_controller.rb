@@ -4,9 +4,15 @@ class RegistrationController < ActionController::API
         command = RegisterUser.call(params[:email], params[:password])
 
         if command.success?
-            render json: { result: 'User created'}, status: :ok
+            render json: { 
+                response: "success",
+                result: "User created"
+                }, status: :ok
         else
-            render json: { error: command.errors }, status: :conflict
+            render json: { 
+                response: "failure",
+                error: command.errors 
+                }, status: :conflict
         end
     end
 
@@ -14,9 +20,15 @@ class RegistrationController < ActionController::API
         user = User.find_by_confirm_token(params[:id])
         if user
             email_activate(user)
-            render json: { result: 'User activated'}, status: :ok
+            render json: { 
+                response: "success",
+                result: "User activated"
+                }, status: :ok
         else
-            render json: { error: 'User not found' }, status: :bad_request
+            render json: { 
+                response: "failure",
+                error: "User not found" 
+                }, status: :bad_request
         end
     end
 
