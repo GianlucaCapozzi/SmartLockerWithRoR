@@ -36,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.input_password) EditText _passwordText;
     @BindView(R.id.btn_login) Button _loginButton;
     @BindView(R.id.link_signup) TextView _signupLink;
+    @BindView(R.id.link_forgot) TextView _forgotLink;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +65,28 @@ public class LoginActivity extends AppCompatActivity {
                 //overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
             }
         });
+
+        _forgotLink.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (!validateForForgot()) {
+                    onLoginFailed();
+                    return;
+                }
+                String email = _emailText.getText().toString();
+
+                JSONObject forgotForm = new JSONObject();
+                try {
+                    forgotForm.put("email", email);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                RequestBody body = RequestBody.create(forgotForm.toString(), MediaType.parse("application/json; charset=utf-8"));
+                postRequest(MainActivity.url+"/forgetpass", body);
+            }
+        });
+
     }
 
     public void login() {
@@ -155,6 +178,22 @@ public class LoginActivity extends AppCompatActivity {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
 
         _loginButton.setEnabled(true);
+    }
+
+    private boolean validateForForgot() {
+        boolean valid = true;
+
+        String email = _emailText.getText().toString();
+
+        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            _emailText.setError("enter a valid email address");
+            valid = false;
+        } else {
+            _emailText.setError(null);
+        }
+
+        return valid;
+
     }
 
     private boolean validate() {
