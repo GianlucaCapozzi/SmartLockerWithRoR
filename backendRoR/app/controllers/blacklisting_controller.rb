@@ -5,9 +5,15 @@ class BlacklistingController < ApplicationController
         command = BlacklistToken.call(request.headers)
 
         if command.success?
-            render json: { auth_token: 'Token blacklisted' }
+            render json: { 
+                response: "success",
+                auth_token: "Token blacklisted" 
+            }, status: :ok
         else
-            render json: { error: command.errors }, status: :bad_request
+            render json: { 
+                response: "failure",
+                error: command.errors 
+                }, status: :bad_request
         end
     end
 end
