@@ -9,7 +9,7 @@
     <item
         android:id="@+id/navigation_account"
         android:icon="@drawable/ic_account_white_24dp"
-        android:title="@string/title_account" />
+        android:title="@string/title_bookings" />
 
     <item
         android:id="@+id/navigation_book"

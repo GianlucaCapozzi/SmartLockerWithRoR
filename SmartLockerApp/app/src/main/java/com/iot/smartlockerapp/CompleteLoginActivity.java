@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.internal.Utils;
+import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -55,7 +56,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
     private static final String TAG = "ConfSignupActivity";
 
-    @BindView(R.id.input_image) CircularImageView _profilePict;
+    @BindView(R.id.input_image) CircleImageView _profilePict;
     @BindView(R.id.input_name) EditText _nameText;
     @BindView(R.id.input_surname) EditText _surnText;
     @BindView(R.id.input_age) EditText _ageText;
@@ -67,7 +68,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
     private String surname;
     private String age;
     private String weight;
-    private String imageUri;
+    private String imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
 
     private String base64Credentials;
     private String email;
@@ -275,6 +276,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
         Intent i = new Intent(this, MainActivity.class);
         i.putExtra("user", user);
         i.putExtra("email", email);
+
         startActivity(i);
     }
 
@@ -288,6 +290,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
         Intent i = new Intent(this, MainActivity.class);
         i.putExtra("user", username);
         i.putExtra("email", email);
+        i.putExtra("image", imageUri);
 
         startActivity(i);
 
