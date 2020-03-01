@@ -16,9 +16,11 @@
         android:icon="@drawable/ic_location_on_white_24dp"
         android:title="@string/title_book" />
 
+    <!--
     <item
         android:id="@+id/navigation_settings"
         android:icon="@drawable/ic_settings_white_24dp"
         android:title="@string/title_settings" />
+    -->
 
 </menu>

@@ -73,10 +73,12 @@ public class HomeFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         Log.d(TAG, user);
 
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle("Bookings");
+
         db = FirebaseFirestore.getInstance();
 
-        usernameTV = (TextView) v.findViewById(R.id.usernameView);
-        usernameTV.setText("Welcome back, " + user);
+        //usernameTV = (TextView) v.findViewById(R.id.usernameView);
+        //usernameTV.setText("Welcome, " + user);
 
         bookedRV = (RecyclerView) v.findViewById(R.id.bookedRV);
         bookedRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -116,6 +118,9 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Intent i = new Intent(v.getContext(), CardBookingActivity.class);
+                        i.putExtra("user", user);
+                        i.putExtra("email", email);
+                        i.putExtra("city", booking.getCity());
                         i.putExtra("park", booking.getPark());
                         i.putExtra("date", booking.getDate());
                         i.putExtra("lockHash", booking.getLockHash());

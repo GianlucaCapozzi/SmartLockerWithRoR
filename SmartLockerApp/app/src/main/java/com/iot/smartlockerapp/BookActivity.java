@@ -37,13 +37,9 @@ public class BookActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* Remove action bar */
-        try
-        {
-            this.getSupportActionBar().hide();
-        }
-        catch (NullPointerException e){}
         setContentView(R.layout.activity_book);
+
+        getSupportActionBar().setTitle("Book your locker");
 
         toBookRV = (RecyclerView) findViewById(R.id.toBookRV);
         toBookRV.setLayoutManager(new LinearLayoutManager(this));

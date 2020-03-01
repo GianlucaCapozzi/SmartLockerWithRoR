@@ -64,6 +64,8 @@ public class SearchFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_search_park, container, false);
 
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle("Search Park");
+
         search_edit_text = v.findViewById(R.id.searchView);
         recyclerView = v.findViewById(R.id.searchRV);
 

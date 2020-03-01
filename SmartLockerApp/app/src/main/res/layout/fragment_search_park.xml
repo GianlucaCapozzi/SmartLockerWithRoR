@@ -8,9 +8,10 @@
 
     <SearchView
         android:id="@+id/searchView"
-        android:layout_width="342dp"
-        android:layout_height="61dp"
+        android:layout_width="408dp"
+        android:layout_height="62dp"
         android:inputType="text"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -18,7 +19,6 @@
         android:id="@+id/searchRV"
         android:layout_width="match_parent"
         android:layout_height="500dp"
-        android:fontFamily="@font/montserrat_regular"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         app:layout_constraintTop_toBottomOf="@+id/searchView"
         tools:layout_editor_absoluteX="0dp" />

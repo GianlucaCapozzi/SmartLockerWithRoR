@@ -77,6 +77,11 @@ public class CompleteLoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try
+        {
+            this.getSupportActionBar().hide();
+        }
+        catch (NullPointerException e){}
         setContentView(R.layout.activity_complogin);
         ButterKnife.bind(this);
 
@@ -164,6 +169,8 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         base64Credentials = getIntent().getStringExtra("token");
         email = getIntent().getStringExtra("email");
+
+        Log.d(TAG, email);
 
         if(imageUri == null) {
             imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
