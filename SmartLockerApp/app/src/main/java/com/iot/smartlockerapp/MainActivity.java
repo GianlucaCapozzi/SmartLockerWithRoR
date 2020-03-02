@@ -30,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
     static String url = "http://10.0.2.2:3000";
     private static final String PREFS_NAME = "SmartLockSettings";
 
+    private int fromActivity;
+    private boolean rem_me;
+
     private String user;
     private String email;
 
@@ -90,6 +93,12 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Log.d("MAIN", "After navigation");
 
+        fromActivity = getIntent().getIntExtra("fromActivity", 0);
+
+        if(fromActivity == 1) { // Caller is login
+            rem_me = getIntent().getBooleanExtra("remember", true);
+        }
+
         SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String name = pref.getString("user", null);
         String email = pref.getString("email", null);
@@ -116,7 +125,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        getSharedPreferences(PREFS_NAME, 0).edit().clear().commit();
+        //if(rem_me == false) {
+        getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
+        getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
+        //}
     }
 
     @Override

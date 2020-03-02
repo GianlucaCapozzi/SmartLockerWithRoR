@@ -37,6 +37,7 @@
     <string name="create_account">Create Account</string>
     <string name="already_member">Already a member? Login</string>
     <string name="signup_link">No account yet? Create one</string>
+    <string name="remember_me">Remember Me</string>
     <string name="login">Login</string>
     <string name="email">Email</string>
     <string name="password">Password</string>

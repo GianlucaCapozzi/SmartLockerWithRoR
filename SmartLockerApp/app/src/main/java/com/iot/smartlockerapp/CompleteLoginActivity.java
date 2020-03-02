@@ -73,6 +73,8 @@ public class CompleteLoginActivity extends AppCompatActivity {
     private String base64Credentials;
     private String email;
 
+    private final static int IS_SIGNUP = 2;
+
     private final static int RESULT_LOAD_IMAGE = 1;
 
     private static final String PREFS_NAME = "SmartLockSettings";
@@ -291,9 +293,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
         String username = name + " " + surname;
 
         Intent i = new Intent(this, MainActivity.class);
-        i.putExtra("user", username);
-        i.putExtra("email", email);
-        i.putExtra("image", imageUri);
+        i.putExtra("fromActivity", IS_SIGNUP);
 
         getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                 .edit()

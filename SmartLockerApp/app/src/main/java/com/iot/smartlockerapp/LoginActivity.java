@@ -2,11 +2,13 @@ package com.iot.smartlockerapp;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,14 +36,19 @@ import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String PREFS_NAME = "SmartLockSettings";
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
 
+    private static final int IS_LOG = 1;
+
     private String user;
+    private boolean value;
 
     @BindView(R.id.input_email) EditText _emailText;
     @BindView(R.id.input_password) EditText _passwordText;
     @BindView(R.id.btn_login) Button _loginButton;
+    @BindView(R.id.rememberBox) CheckBox _checkRem;
     @BindView(R.id.link_signup) TextView _signupLink;
     @BindView(R.id.link_forgot) TextView _forgotLink;
 
@@ -56,6 +63,15 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         ButterKnife.bind(this);
+
+        SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String name = pref.getString("user", null);
+        String email = pref.getString("email", null);
+
+        if(name != null && email != null) {
+            Intent i = new Intent(this, MainActivity.class);
+            startActivity(i);
+        }
 
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +126,8 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         _loginButton.setEnabled(false);
+
+        value = _checkRem.isChecked();
 
 
         String email = _emailText.getText().toString();
@@ -244,8 +262,15 @@ public class LoginActivity extends AppCompatActivity {
     private void onLoginSuccess() {
 
         Intent i = new Intent(this, MainActivity.class);
-        i.putExtra("user", user);
-        i.putExtra("email", _emailText.getText().toString());
+
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putString("user", user)
+                .putString("email", _emailText.getText().toString())
+                .commit();
+
+        i.putExtra("fromActivity", IS_LOG);
+        i.putExtra("remember", value);
         startActivity(i);
 
         finish();

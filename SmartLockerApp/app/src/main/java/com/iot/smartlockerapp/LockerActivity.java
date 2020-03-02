@@ -70,7 +70,8 @@ public class LockerActivity extends AppCompatActivity {
 
     private void getLockers(){
         String cityPark = city + park;
-        Query query = db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers");
+        Query query = db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers")
+                .orderBy("lockName");
 
         FirestoreRecyclerOptions<Locker> response = new FirestoreRecyclerOptions.Builder<Locker>()
                 .setQuery(query, Locker.class)
