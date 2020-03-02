@@ -25,15 +25,17 @@ public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> 
 
     private List<Park> parkList;
     private List<Park> filteredData;
-    private String user;
+    private String user; // email
+    private String username; // username
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public ParkAdapter(List<Park> list, String user) {
+    public ParkAdapter(List<Park> list, String user, String username) {
 
         parkList = list;
         filteredData = list;
         this.user = user;
+        this.username = username;
     }
 
     private void printList() {
@@ -65,10 +67,12 @@ public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> 
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 for(QueryDocumentSnapshot doc : task.getResult()) {
                                    Log.d("PARKADAPTER", doc.getId());
+
                                     Intent i = new Intent(v.getContext(), BookActivity.class);
                                     i.putExtra("user", user);
-                                    i.putExtra("city", doc.getId());
+                                    i.putExtra("city", p.getName());
                                     v.getContext().startActivity(i);
+
                                 }
                             }
                         });

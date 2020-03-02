@@ -209,7 +209,7 @@ public class CardBookingActivity extends AppCompatActivity {
 
         String cityPark = city+parkName;
 
-        db.collection("cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
+        db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
                 .set(lock, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -236,7 +236,7 @@ public class CardBookingActivity extends AppCompatActivity {
 
         String cityPark = city + parkName;
 
-        db.collection("cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
+        db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
                 .set(lock, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -290,7 +290,7 @@ public class CardBookingActivity extends AppCompatActivity {
 
         String cityPark = city+parkName;
 
-        db.collection("cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
+        db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
                 .set(lock, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

@@ -49,6 +49,8 @@ public class BookActivity extends AppCompatActivity {
         user = getIntent().getStringExtra("user");
         city = getIntent().getStringExtra("city");
 
+        Log.d("BOOKACTIVITY", city);
+
         getAllParks();
 
     }
@@ -66,9 +68,9 @@ public class BookActivity extends AppCompatActivity {
     }
 
     private void getAllParks(){
-        Query query = db.collection("cities/"+city+"/parks");
+        Query query = db.collection("cities/"+city.hashCode()+"/parks");
 
-        Log.d("BOOK", "cities/"+city+"/parks");
+        Log.d("BOOK", "cities/"+city.hashCode()+"/parks");
 
         FirestoreRecyclerOptions<ToBook> response = new FirestoreRecyclerOptions.Builder<ToBook>()
                 .setQuery(query, ToBook.class)

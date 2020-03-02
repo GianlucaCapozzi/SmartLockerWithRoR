@@ -1,12 +1,12 @@
 package com.iot.smartlockerapp;
 
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -28,6 +28,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity {
 
     static String url = "http://10.0.2.2:3000";
+    private static final String PREFS_NAME = "SmartLockSettings";
 
     private String user;
     private String email;
@@ -89,9 +90,10 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Log.d("MAIN", "After navigation");
 
-        String name = getIntent().getStringExtra("user");
-        String email = getIntent().getStringExtra("email");
-        String image = getIntent().getStringExtra("image");
+        SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String name = pref.getString("user", null);
+        String email = pref.getString("email", null);
+        String image = pref.getString("image", null);
 
         View header = nv.getHeaderView(0);
 
@@ -109,6 +111,12 @@ public class MainActivity extends AppCompatActivity {
 
         openFragment(HomeFragment.newInstance(name, email));
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        getSharedPreferences(PREFS_NAME, 0).edit().clear().commit();
     }
 
     @Override
@@ -131,20 +139,25 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    user = getIntent().getStringExtra("user");
-                    email = getIntent().getStringExtra("email");
+                    SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                    user = pref.getString("user", null);
+                    email = pref.getString("email", null);
                     Log.d("MAIN", user);
                     switch (item.getItemId()) {
                         case R.id.navigation_home:
                             openFragment(HomeFragment.newInstance(user, email));
                             return true;
                         case R.id.navigation_book:
-                            openFragment(SearchFragment.newInstance(email));
+                            openFragment(SearchFragment.newInstance(email, user));
                             return true;
+                        case R.id.navigation_prev_bookings:
+                            openFragment(PrevBookingsFragment.newInstance(email));
                     }
                     return false;
                 }

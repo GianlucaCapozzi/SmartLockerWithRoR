@@ -33,8 +33,9 @@ public class HomeFragment extends Fragment {
 
     private String TAG = "HOME";
 
-    private TextView usernameTV;
+    private TextView no_bookingsRV;
     private RecyclerView bookedRV;
+
 
     private FirestoreRecyclerAdapter bookingAdapter;
 
@@ -80,6 +81,8 @@ public class HomeFragment extends Fragment {
         //usernameTV = (TextView) v.findViewById(R.id.usernameView);
         //usernameTV.setText("Welcome, " + user);
 
+        no_bookingsRV = v.findViewById(R.id.no_bookingsTV);
+
         bookedRV = (RecyclerView) v.findViewById(R.id.bookedRV);
         bookedRV.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -93,9 +96,20 @@ public class HomeFragment extends Fragment {
                 .whereEqualTo("user", email)
                 .whereEqualTo("active", true);
 
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.getResult().isEmpty()) {
+                            no_bookingsRV.setText("No active bookings");
+                        }
+                    }
+                });
+
+
         FirestoreRecyclerOptions<Booking> response = new FirestoreRecyclerOptions.Builder<Booking>()
                 .setQuery(query, Booking.class)
                 .build();
+
 
         bookingAdapter = new FirestoreRecyclerAdapter<Booking, BookingActiveHolder>(response) {
 
@@ -163,8 +177,8 @@ public class HomeFragment extends Fragment {
 
     private void getLockInfo(String city, String parkName, String lockHash){
         String cityPark = city + parkName;
-        Log.d(TAG, "cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers");
-        DocumentReference docRef = db.collection("cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash);
+        Log.d(TAG, "cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers");
+        DocumentReference docRef = db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash);
 
         Log.d(TAG, docRef.toString());
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {

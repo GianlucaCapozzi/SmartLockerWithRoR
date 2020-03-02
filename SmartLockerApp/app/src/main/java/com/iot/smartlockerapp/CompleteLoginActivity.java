@@ -75,6 +75,8 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
     private final static int RESULT_LOAD_IMAGE = 1;
 
+    private static final String PREFS_NAME = "SmartLockSettings";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -276,6 +278,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
         Intent i = new Intent(this, MainActivity.class);
         i.putExtra("user", user);
         i.putExtra("email", email);
+        i.putExtra("image", imageUri);
 
         startActivity(i);
     }
@@ -291,6 +294,13 @@ public class CompleteLoginActivity extends AppCompatActivity {
         i.putExtra("user", username);
         i.putExtra("email", email);
         i.putExtra("image", imageUri);
+
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putString("user", username)
+                .putString("email", email)
+                .putString("image", imageUri)
+                .commit();
 
         startActivity(i);
 

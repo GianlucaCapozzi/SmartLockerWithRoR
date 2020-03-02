@@ -33,6 +33,7 @@ public class SearchFragment extends Fragment {
     private ParkAdapter parkAdapter;
 
     private String user;
+    private String username;
 
     private ArrayList<Park> cities;
 
@@ -41,10 +42,11 @@ public class SearchFragment extends Fragment {
     public SearchFragment() {
     }
 
-    public static SearchFragment newInstance(String user) {
+    public static SearchFragment newInstance(String user, String username) {
         SearchFragment fragment = new SearchFragment();
         Bundle args = new Bundle();
         args.putString("user", user);
+        args.putString("username", username);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,6 +56,7 @@ public class SearchFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if(getArguments() != null){
             user = getArguments().getString("user");
+            username = getArguments().getString("username");
             Log.d(TAG, user);
         }
     }
@@ -77,7 +80,7 @@ public class SearchFragment extends Fragment {
 
         cities = new ArrayList<Park>();
 
-        parkAdapter = new ParkAdapter(cities, user);
+        parkAdapter = new ParkAdapter(cities, user, username);
         recyclerView.setAdapter(parkAdapter);
 
         getCities();
