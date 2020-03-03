@@ -111,8 +111,6 @@ public class MainActivity extends AppCompatActivity {
             rem_me = getIntent().getBooleanExtra("remember", true);
         }
 
-
-
         View header = nv.getHeaderView(0);
 
         if(!image.equals("R.drawable.com_facebook_profile_picture_blank_portrait")) {
@@ -135,9 +133,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if(rem_me == false) {
+        if(fromActivity == 2) {
             getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
+        }
+        else if(fromActivity == 1) {
+            if (rem_me == false) {
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
+            }
         }
     }
 
@@ -184,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                             return true;
                         case R.id.navigation_prev_bookings:
                             openFragment(PrevBookingsFragment.newInstance(email));
+                            return true;
                     }
                     return false;
                 }

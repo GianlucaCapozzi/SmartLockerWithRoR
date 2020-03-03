@@ -22,8 +22,8 @@
             android:layout_gravity="bottom"
             android:background="@color/primary_darker"
             app:menu="@menu/navigation"
-            app:itemIconTint="@color/white"
-            app:itemTextColor="@color/white"
+            app:itemIconTint="@drawable/nav_bottombar_item"
+            app:itemTextColor="@drawable/nav_bottombar_item"
             tools:layout_editor_absoluteX="-33dp"
             tools:layout_editor_absoluteY="674dp" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -68,6 +68,7 @@ public class LoginActivity extends AppCompatActivity {
         String name = pref.getString("user", null);
         String email = pref.getString("email", null);
 
+
         if(name != null && email != null) {
             Intent i = new Intent(this, MainActivity.class);
             startActivity(i);

@@ -4,6 +4,7 @@
     <color name="primary_dark">#467927</color>
     <color name="primary_darker">#297927</color>
     <color name="accent">#D81B60</color>
+    <color name="light_blue">#11b8b2</color>
 
     <color name="colorAvailable">#a4c639</color>
     <color name="colorBusy">#ff0000</color>
