@@ -11,7 +11,7 @@
         android:layout_width="408dp"
         android:layout_height="62dp"
         android:inputType="text"
-
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

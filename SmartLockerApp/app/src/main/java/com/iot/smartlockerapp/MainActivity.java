@@ -1,5 +1,6 @@
 package com.iot.smartlockerapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -83,18 +84,22 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.settings:
                         Toast.makeText(MainActivity.this, "Settings",Toast.LENGTH_SHORT).show();
                         return true;
+                    case R.id.logout:
+                        logout();
+                        return true;
                 }
                 return false;
             }
         });
 
-        Log.d("MAIN", "Before navigation");
         BottomNavigationView bottomNavigation = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        Log.d("MAIN", "After navigation");
 
         fromActivity = getIntent().getIntExtra("fromActivity", 0);
 
+        Log.d(TAG, "FROM ACTIVITY: " + fromActivity);
+
+        rem_me = true;
         if(fromActivity == 1) { // Caller is login
             rem_me = getIntent().getBooleanExtra("remember", true);
         }
@@ -122,13 +127,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     protected void onStop() {
         super.onStop();
-        //if(rem_me == false) {
-        getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
-        getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
-        //}
+        if(rem_me == false) {
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
+        }
     }
 
     @Override
@@ -151,7 +157,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
+    private void logout() {
+        getSharedPreferences(PREFS_NAME, 0).edit().clear().commit();
+        Intent i = new Intent(this, LoginActivity.class);
+        startActivity(i);
+    }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
