@@ -51,6 +51,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String name = pref.getString("user", null);
+        String email = pref.getString("email", null);
+        String image = pref.getString("image", null);
+
         dl = (DrawerLayout) findViewById(R.id.activity_main);
         t = new ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close) {
             public void onDrawerOpened(View drawerView) {
@@ -79,7 +84,8 @@ public class MainActivity extends AppCompatActivity {
                 int id = item.getItemId();
                 switch (id) {
                     case R.id.account:
-                        Toast.makeText(MainActivity.this, "My Account", Toast.LENGTH_SHORT).show();
+                        openFragment(AccountFragment.newInstance());
+                        dl.closeDrawers();
                         return true;
                     case R.id.settings:
                         Toast.makeText(MainActivity.this, "Settings",Toast.LENGTH_SHORT).show();
@@ -88,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                         logout();
                         return true;
                 }
+
                 return false;
             }
         });
@@ -104,10 +111,7 @@ public class MainActivity extends AppCompatActivity {
             rem_me = getIntent().getBooleanExtra("remember", true);
         }
 
-        SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String name = pref.getString("user", null);
-        String email = pref.getString("email", null);
-        String image = pref.getString("image", null);
+
 
         View header = nv.getHeaderView(0);
 
