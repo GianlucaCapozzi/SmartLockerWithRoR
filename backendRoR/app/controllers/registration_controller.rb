@@ -6,7 +6,7 @@ class RegistrationController < ActionController::API
         if command.success?
             render json: { 
                 response: "success",
-                result: "User created"
+                result: command.result
                 }, status: :ok
         else
             render json: { 

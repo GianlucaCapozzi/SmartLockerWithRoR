@@ -5,7 +5,7 @@ class UserMailer < ActionMailer::Base
 
     def registration_confirmation(user)
         @user = user
-        @url = "http://localhost:3000/activation/"+@user.confirm_token
+        @url = "https://smart-locker-macc.herokuapp.com/activation/"+@user.confirm_token
         mail(:to => @user.email, :subject => "Registration Confirmation", :template_name => "registration_confirmation")
     end
 

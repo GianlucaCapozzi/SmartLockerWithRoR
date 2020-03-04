@@ -27,6 +27,7 @@ class ConfigureProfile
                 @user.surname = @surname
                 @user.age = @age
                 @user.weight = @weight
+                @user.info_completed = true
                 @user.save
             else
                 errors.add(:user, 'User not found')
@@ -55,7 +56,7 @@ class ConfigureProfile
     end
 
     def decoded_auth_token
-        @decoded_auth_token ||= JsonWebToken.decode(http_auth_header)
+        @decoded_auth_token ||= JsonWebToken::decode(http_auth_header)
     end
   
     def http_auth_header
