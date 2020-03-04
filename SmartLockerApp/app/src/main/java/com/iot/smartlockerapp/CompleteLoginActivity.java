@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.internal.Utils;
+import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -55,7 +56,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
     private static final String TAG = "ConfSignupActivity";
 
-    @BindView(R.id.input_image) CircularImageView _profilePict;
+    @BindView(R.id.input_image) CircleImageView _profilePict;
     @BindView(R.id.input_name) EditText _nameText;
     @BindView(R.id.input_surname) EditText _surnText;
     @BindView(R.id.input_age) EditText _ageText;
@@ -67,15 +68,25 @@ public class CompleteLoginActivity extends AppCompatActivity {
     private String surname;
     private String age;
     private String weight;
-    private String imageUri;
+    private String imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
 
     private String base64Credentials;
+    private String email;
+
+    private final static int IS_SIGNUP = 2;
 
     private final static int RESULT_LOAD_IMAGE = 1;
+
+    private static final String PREFS_NAME = "SmartLockSettings";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try
+        {
+            this.getSupportActionBar().hide();
+        }
+        catch (NullPointerException e){}
         setContentView(R.layout.activity_complogin);
         ButterKnife.bind(this);
 
@@ -162,6 +173,9 @@ public class CompleteLoginActivity extends AppCompatActivity {
         _signupButton.setEnabled(false);
 
         base64Credentials = getIntent().getStringExtra("token");
+        email = getIntent().getStringExtra("email");
+
+        Log.d(TAG, email);
 
         if(imageUri == null) {
             imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
@@ -236,13 +250,20 @@ public class CompleteLoginActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(responseString.equals("success")){
-                            onSignupSuccess();
-                        }
-                        else{
-                            Log.d("ERR", response.body().toString());
-                            Log.d("ERR", "onResponse failed");
-                            onSignupFailed();
+                        try {
+                            JSONObject json = new JSONObject(response.body().string());
+                            String loginResponseString = json.getString("response");
+                            Log.d("LOGIN", "Response from the server: " + loginResponseString);
+                            if(loginResponseString.equals("success")) {
+                                onSignupSuccess();
+                            }
+                            else {
+                                onSignupFailed();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -258,6 +279,8 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         Intent i = new Intent(this, MainActivity.class);
         i.putExtra("user", user);
+        i.putExtra("email", email);
+        i.putExtra("image", imageUri);
 
         startActivity(i);
     }
@@ -270,7 +293,14 @@ public class CompleteLoginActivity extends AppCompatActivity {
         String username = name + " " + surname;
 
         Intent i = new Intent(this, MainActivity.class);
-        i.putExtra("user", username);
+        i.putExtra("fromActivity", IS_SIGNUP);
+
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putString("user", username)
+                .putString("email", email)
+                .putString("image", imageUri)
+                .commit();
 
         startActivity(i);
 

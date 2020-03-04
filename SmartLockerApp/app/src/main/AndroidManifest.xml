@@ -42,8 +42,16 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ForgotPasswordActivity"
+            android:parentActivityName=".LoginActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity" />
+        </activity>
+        <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" />
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Dark"/>
         <activity
             android:name=".SignupActivity"
             android:theme="@style/AppTheme.Dark" />
@@ -52,35 +60,47 @@
             android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".BookActivity"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.Dark">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".CardBookingActivity"
-            android:parentActivityName=".BookActivity">
+            android:parentActivityName=".BookActivity"
+            android:theme="@style/AppTheme.Dark">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".BookActivity" />
         </activity>
         <activity android:name=".CardToBookActivity"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.Dark">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
         <activity android:name=".BookedNearYouActivity"
-            android:parentActivityName=".CardToBookActivity">
+            android:parentActivityName=".CardToBookActivity"
+            android:theme="@style/AppTheme.Dark">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".CardToBookActivity" />
         </activity>
         <activity android:name=".LockerActivity"
-            android:parentActivityName=".BookedNearYouActivity">
+            android:parentActivityName=".BookedNearYouActivity"
+            android:theme="@style/AppTheme.Dark">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".BookedNearYouActivity" />
+        </activity>
+        <activity android:name=".ProfileActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.Dark">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
         </activity>
     </application>
 

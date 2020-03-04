@@ -54,7 +54,9 @@ public class CardBookingActivity extends AppCompatActivity {
     private TextView parkNameTV;
     private TextView lockNameTV;
 
+    private String username;
     private String user;
+    private String city;
     private String lockName;
     private String lockHash;
     private String parkName;
@@ -82,7 +84,12 @@ public class CardBookingActivity extends AppCompatActivity {
         parkNameTV = (TextView) findViewById(R.id.idParkName);
         lockNameTV = (TextView) findViewById(R.id.idLockName);
 
-        user = getIntent().getStringExtra("user");
+        username = getIntent().getStringExtra("user");
+        user = getIntent().getStringExtra("email");
+
+        Log.d(TAG, user);
+
+        city = getIntent().getStringExtra("city");
         parkName = getIntent().getStringExtra("park");
         lockHash = getIntent().getStringExtra("lockHash");
         lockName = getIntent().getStringExtra("lockName");
@@ -102,13 +109,16 @@ public class CardBookingActivity extends AppCompatActivity {
         leave = (Button) findViewById(R.id.idLeaveBtn);
         delete = (Button) findViewById(R.id.idDeleteBtn);
 
-        final String bookID = user + " " + parkName + " " + date + " " + parkName + lockName;
+        String lockPark = city + parkName + lockName;
+
+        final String bookID = user + " " + city + " " + parkName + " " + date + " " + lockPark;
         Log.d(TAG, "BookID: " + bookID);
+
 
         leave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                leaveLocker(bookID, parkName, lockHash);
+                leaveLocker(bookID, city, parkName, lockHash);
             }
         });
 
@@ -122,7 +132,7 @@ public class CardBookingActivity extends AppCompatActivity {
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        deleteBooking(bookID, parkName, lockHash);
+                        deleteBooking(bookID, city, parkName, lockHash);
                         Toast.makeText(getApplicationContext(), "You've choosen to delete you booking", Toast.LENGTH_SHORT).show();
                         Intent i = new Intent(getApplicationContext(), MainActivity.class);
                         getApplicationContext().startActivity(i);
@@ -160,7 +170,7 @@ public class CardBookingActivity extends AppCompatActivity {
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
 
-                setLockFull(parkName, lockHash);
+                setLockFull(city, parkName, lockHash);
 
             }
 
@@ -175,7 +185,7 @@ public class CardBookingActivity extends AppCompatActivity {
                 .setTitle("Put your finger over the sensor")
                 .setSubtitle("Set the subtitle to display.")
                 .setDescription("Set the description to display")
-                .setNegativeButtonText("Negative Button")
+                .setNegativeButtonText("Dismiss")
                 .build();
 
         authenticate.setOnClickListener(new View.OnClickListener() {
@@ -186,7 +196,7 @@ public class CardBookingActivity extends AppCompatActivity {
         });
     }
 
-    private void setLockFull(String parkName, String lockHash){
+    private void setLockFull(String city, String parkName, String lockHash){
         Map<String, Object> lock = new HashMap<>();
         if(lockState == true) {
             lock.put("open", false);
@@ -197,7 +207,9 @@ public class CardBookingActivity extends AppCompatActivity {
             lockState = true;
         }
 
-        db.collection("parks/"+parkName.hashCode()+"/lockers").document(lockHash)
+        String cityPark = city+parkName;
+
+        db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
                 .set(lock, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -213,7 +225,7 @@ public class CardBookingActivity extends AppCompatActivity {
                 });
     }
 
-    private void leaveLocker(String bookID, String parkName, String lockHash){
+    private void leaveLocker(String bookID, String city, String parkName, String lockHash){
         Map<String, Object> lock = new HashMap<>();
         if(lockState == true) {
             lock.put("open", false);
@@ -222,7 +234,9 @@ public class CardBookingActivity extends AppCompatActivity {
         lock.put("user", "");
         lockState = false;
 
-        db.collection("parks/"+parkName.hashCode()+"/lockers").document(lockHash)
+        String cityPark = city + parkName;
+
+        db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
                 .set(lock, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -258,12 +272,13 @@ public class CardBookingActivity extends AppCompatActivity {
                         Log.w(TAG, "Error writing document", e);
                     }
                 });
-
         Intent i = new Intent(this, MainActivity.class);
+        i.putExtra("email", user);
+        i.putExtra("user", username);
         finish();
     }
 
-    private void deleteBooking(String bookID, String parkName, String lockHash){
+    private void deleteBooking(String bookID, String parkName, String city, String lockHash){
 
         Map<String, Object> lock = new HashMap<>();
         if(lockState == true) {
@@ -273,7 +288,9 @@ public class CardBookingActivity extends AppCompatActivity {
         lock.put("user", "");
         lockState = false;
 
-        db.collection("parks/"+parkName.hashCode()+"/lockers").document(lockHash)
+        String cityPark = city+parkName;
+
+        db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
                 .set(lock, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

@@ -8,11 +8,9 @@
 
     <Button
         android:id="@+id/idAuthButt"
-        style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="365dp"
+        android:layout_height="54dp"
         android:layout_marginTop="32dp"
-        android:fontFamily="@font/montserrat_regular"
         android:text="@string/authenticate"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -26,7 +24,6 @@
         android:layout_marginStart="176dp"
         android:layout_marginTop="64dp"
         android:layout_marginEnd="176dp"
-        android:fontFamily="@font/montserrat_regular"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -43,7 +40,6 @@
         android:layout_marginEnd="136dp"
         android:text="@string/booking_home"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
-        android:fontFamily="@font/montserrat_regular"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -55,7 +51,6 @@
         android:layout_marginStart="176dp"
         android:layout_marginTop="44dp"
         android:layout_marginEnd="177dp"
-        android:fontFamily="@font/montserrat_regular"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -63,13 +58,11 @@
 
     <Button
         android:id="@+id/idLeaveBtn"
-        style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="365dp"
+        android:layout_height="54dp"
         android:layout_marginStart="140dp"
         android:layout_marginTop="52dp"
         android:layout_marginEnd="141dp"
-        android:fontFamily="@font/montserrat_regular"
         android:text="@string/leave_locker"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,16 +70,14 @@
 
     <Button
         android:id="@+id/idDeleteBtn"
-        style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="365dp"
+        android:layout_height="54dp"
         android:layout_marginStart="123dp"
         android:layout_marginTop="52dp"
         android:layout_marginEnd="120dp"
-        android:fontFamily="@font/montserrat_regular"
         android:text="@string/delete_booking"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.475"
+        app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/idLeaveBtn" />
 </androidx.constraintlayout.widget.ConstraintLayout>

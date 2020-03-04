@@ -7,51 +7,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
-        android:id="@+id/bookView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="46dp"
-        android:layout_marginTop="76dp"
-        android:layout_marginEnd="411dp"
-        android:fontFamily="@font/montserrat_regular"
-        android:text="@string/toBook"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-        android:textColor="#0F0F0F"
-        android:textSize="24dp"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.148"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
         android:id="@+id/parkToBook_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="176dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="176dp"
-        android:fontFamily="@font/montserrat_regular"
         android:text="@string/parkToBook"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bookView" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/toBookRV"
-        android:layout_width="0dp"
-        android:layout_height="500dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginEnd="8dp"
-        android:visibility="visible"
-        android:fontFamily="@font/montserrat_regular"
+        android:layout_width="403dp"
+        android:layout_height="664dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="4dp"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/parkToBook_label" />
 
 

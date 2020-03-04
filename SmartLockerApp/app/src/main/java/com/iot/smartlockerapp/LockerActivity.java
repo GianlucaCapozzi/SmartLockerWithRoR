@@ -70,7 +70,8 @@ public class LockerActivity extends AppCompatActivity {
 
     private void getLockers(){
         String cityPark = city + park;
-        Query query = db.collection("cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers");
+        Query query = db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers")
+                .orderBy("lockName");
 
         FirestoreRecyclerOptions<Locker> response = new FirestoreRecyclerOptions.Builder<Locker>()
                 .setQuery(query, Locker.class)
@@ -98,7 +99,8 @@ public class LockerActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             addBooking(user, city, park, date, locker.getLockName());
                             setLock(locker.getLockName(), user);
-                            finish();
+                            Intent main = new Intent(v.getContext(), MainActivity.class);
+                            v.getContext().startActivity(main);
                         }
                     });
                 }
@@ -164,7 +166,7 @@ public class LockerActivity extends AppCompatActivity {
         String lockPark = city + park + lockName;
         int lockHash = lockPark.hashCode();
 
-        db.collection("cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers")
+        db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers")
                 .document(Integer.toString(lockHash))
                 .set(lock, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

@@ -33,12 +33,14 @@ public class HomeFragment extends Fragment {
 
     private String TAG = "HOME";
 
-    private TextView usernameTV;
+    private TextView no_bookingsRV;
     private RecyclerView bookedRV;
+
 
     private FirestoreRecyclerAdapter bookingAdapter;
 
     private String user;
+    private String email;
     private String lockName;
     private boolean lockState;
 
@@ -47,10 +49,11 @@ public class HomeFragment extends Fragment {
     public HomeFragment() {
     }
 
-    public static HomeFragment newInstance(String user) {
+    public static HomeFragment newInstance(String user, String email) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
         args.putString("user", user);
+        args.putString("email", email);
         fragment.setArguments(args);
         return fragment;
     }
@@ -60,6 +63,7 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if(getArguments() != null){
             user = getArguments().getString("user");
+            email = getArguments().getString("email");
             Log.d(TAG, user);
         }
     }
@@ -70,10 +74,14 @@ public class HomeFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         Log.d(TAG, user);
 
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle("Bookings");
+
         db = FirebaseFirestore.getInstance();
 
-        usernameTV = (TextView) v.findViewById(R.id.usernameView);
-        usernameTV.setText("Welcome back, " + user);
+        //usernameTV = (TextView) v.findViewById(R.id.usernameView);
+        //usernameTV.setText("Welcome, " + user);
+
+        no_bookingsRV = v.findViewById(R.id.no_bookingsTV);
 
         bookedRV = (RecyclerView) v.findViewById(R.id.bookedRV);
         bookedRV.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -85,12 +93,23 @@ public class HomeFragment extends Fragment {
 
     private void getUserActiveBookings(){
         Query query = db.collection("bookings")
-                .whereEqualTo("user", user)
+                .whereEqualTo("user", email)
                 .whereEqualTo("active", true);
+
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.getResult().isEmpty()) {
+                            no_bookingsRV.setText("No active bookings");
+                        }
+                    }
+                });
+
 
         FirestoreRecyclerOptions<Booking> response = new FirestoreRecyclerOptions.Builder<Booking>()
                 .setQuery(query, Booking.class)
                 .build();
+
 
         bookingAdapter = new FirestoreRecyclerAdapter<Booking, BookingActiveHolder>(response) {
 
@@ -113,6 +132,9 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Intent i = new Intent(v.getContext(), CardBookingActivity.class);
+                        i.putExtra("user", user);
+                        i.putExtra("email", email);
+                        i.putExtra("city", booking.getCity());
                         i.putExtra("park", booking.getPark());
                         i.putExtra("date", booking.getDate());
                         i.putExtra("lockHash", booking.getLockHash());
@@ -155,8 +177,8 @@ public class HomeFragment extends Fragment {
 
     private void getLockInfo(String city, String parkName, String lockHash){
         String cityPark = city + parkName;
-        Log.d(TAG, "cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers");
-        DocumentReference docRef = db.collection("cities/"+city+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash);
+        Log.d(TAG, "cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers");
+        DocumentReference docRef = db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash);
 
         Log.d(TAG, docRef.toString());
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {

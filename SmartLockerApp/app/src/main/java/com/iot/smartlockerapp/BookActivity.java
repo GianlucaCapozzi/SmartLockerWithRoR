@@ -37,13 +37,9 @@ public class BookActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* Remove action bar */
-        try
-        {
-            this.getSupportActionBar().hide();
-        }
-        catch (NullPointerException e){}
         setContentView(R.layout.activity_book);
+
+        getSupportActionBar().setTitle("Book your locker");
 
         toBookRV = (RecyclerView) findViewById(R.id.toBookRV);
         toBookRV.setLayoutManager(new LinearLayoutManager(this));
@@ -52,6 +48,8 @@ public class BookActivity extends AppCompatActivity {
 
         user = getIntent().getStringExtra("user");
         city = getIntent().getStringExtra("city");
+
+        Log.d("BOOKACTIVITY", city);
 
         getAllParks();
 
@@ -70,9 +68,9 @@ public class BookActivity extends AppCompatActivity {
     }
 
     private void getAllParks(){
-        Query query = db.collection("cities/"+city+"/parks");
+        Query query = db.collection("cities/"+city.hashCode()+"/parks");
 
-        Log.d("BOOK", "cities/"+city+"/parks");
+        Log.d("BOOK", "cities/"+city.hashCode()+"/parks");
 
         FirestoreRecyclerOptions<ToBook> response = new FirestoreRecyclerOptions.Builder<ToBook>()
                 .setQuery(query, ToBook.class)

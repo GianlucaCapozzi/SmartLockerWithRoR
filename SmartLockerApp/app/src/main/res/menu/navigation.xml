@@ -7,18 +7,20 @@
         android:title="@string/title_home" />
 
     <item
-        android:id="@+id/navigation_account"
-        android:icon="@drawable/ic_account_white_24dp"
-        android:title="@string/title_account" />
+        android:id="@+id/navigation_prev_bookings"
+        android:icon="@drawable/ic_bookmark_24px"
+        android:title="@string/title_bookings" />
 
     <item
         android:id="@+id/navigation_book"
         android:icon="@drawable/ic_location_on_white_24dp"
         android:title="@string/title_book" />
 
+    <!--
     <item
         android:id="@+id/navigation_settings"
         android:icon="@drawable/ic_settings_white_24dp"
         android:title="@string/title_settings" />
+    -->
 
 </menu>

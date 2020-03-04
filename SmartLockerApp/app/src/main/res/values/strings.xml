@@ -3,6 +3,7 @@
     <string name="authenticate">Open/Close Locker</string>
     <string name="close">Close Locker</string>
     <string name="title_home">Home</string>
+    <string name="title_bookings">Previous bookings</string>
     <string name="title_account">Account</string>
     <string name="title_book">Book</string>
     <string name="title_settings">Settings</string>
@@ -36,7 +37,9 @@
     <string name="create_account">Create Account</string>
     <string name="already_member">Already a member? Login</string>
     <string name="signup_link">No account yet? Create one</string>
+    <string name="remember_me">Remember Me</string>
     <string name="login">Login</string>
+    <string name="logout">Logout</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="conf_password">Re-enter Password</string>
@@ -48,4 +51,6 @@
     <string name="age">Age</string>
     <string name="weight">Weight</string>
     <string name="title_activity_maps">Map</string>
+    <string name="Open">open drawer</string>
+    <string name="Close">close drawer</string>
 </resources>

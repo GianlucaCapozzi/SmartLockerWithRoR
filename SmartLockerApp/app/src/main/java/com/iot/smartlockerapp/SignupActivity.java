@@ -46,6 +46,11 @@ public class SignupActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try
+        {
+            this.getSupportActionBar().hide();
+        }
+        catch (NullPointerException e){}
         setContentView(R.layout.activity_signup);
         ButterKnife.bind(this);
 
@@ -168,6 +173,7 @@ public class SignupActivity extends AppCompatActivity {
 
         Intent i = new Intent(this, CompleteLoginActivity.class);
         i.putExtra("token", base64Credentials);
+        i.putExtra("email", _emailText.getText().toString());
 
         startActivity(i);
     }
@@ -179,6 +185,7 @@ public class SignupActivity extends AppCompatActivity {
 
         Intent i = new Intent(this, CompleteLoginActivity.class);
         i.putExtra("token", base64Credentials);
+        i.putExtra("email", _emailText.getText().toString());
 
         startActivity(i);
     }
