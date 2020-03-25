@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +25,8 @@ public class AccountFragment extends Fragment {
 
     private CircleImageView profilePict;
     private TextView usernameTV;
-    private TextView emailTV;
+    private TextView ageTV;
+    private TextView weightTV;
 
     public AccountFragment() {
     }
@@ -44,11 +46,9 @@ public class AccountFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_account, container, false);
 
-        ((MainActivity) getActivity()).getSupportActionBar().setTitle("Account");
 
         SharedPreferences pref = this.getActivity().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String name = pref.getString("user", null);
-        String email = pref.getString("email", null);
         String image = pref.getString("image", null);
 
         if(!image.equals("R.drawable.com_facebook_profile_picture_blank_portrait")) {
@@ -61,8 +61,16 @@ public class AccountFragment extends Fragment {
         usernameTV = v.findViewById(R.id.usernameTV);
         usernameTV.setText(name);
 
-        emailTV = v.findViewById(R.id.emailTV);
-        emailTV.setText(email);
+        int age = 23;
+        int weight = 67;
+
+        ageTV = v.findViewById(R.id.ageTV);
+        String styledAgeText = "<strong> Age: </strong>" + age;
+        ageTV.setText(Html.fromHtml(styledAgeText, Html.FROM_HTML_MODE_LEGACY));
+
+        weightTV = v.findViewById(R.id.weightTV);
+        String styledWeightText = "<strong> Weight: </strong>" + weight;
+        weightTV.setText(Html.fromHtml(styledWeightText, Html.FROM_HTML_MODE_LEGACY));
 
         return v;
 
