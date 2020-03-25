@@ -24,6 +24,7 @@ public class AccountFragment extends Fragment {
 
     private CircleImageView profilePict;
     private TextView usernameTV;
+    private TextView emailTV;
 
     public AccountFragment() {
     }
@@ -59,6 +60,9 @@ public class AccountFragment extends Fragment {
 
         usernameTV = v.findViewById(R.id.usernameTV);
         usernameTV.setText(name);
+
+        emailTV = v.findViewById(R.id.emailTV);
+        emailTV.setText(email);
 
         return v;
 

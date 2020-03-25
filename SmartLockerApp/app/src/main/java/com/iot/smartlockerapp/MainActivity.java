@@ -28,7 +28,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    static String url = "http://10.0.2.2:3000";
+    static String url = "https://smart-locker-macc.herokuapp.com";
     private static final String PREFS_NAME = "SmartLockSettings";
 
     private int fromActivity;
@@ -125,11 +125,11 @@ public class MainActivity extends AppCompatActivity {
         drawerName.setText(name);
 
 
-        openFragment(HomeFragment.newInstance(name, email));
+        openFragment(HomeFragment.newInstance());
 
     }
 
-
+    /*
     @Override
     protected void onStop() {
         super.onStop();
@@ -144,6 +144,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+     */
+
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -181,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("MAIN", user);
                     switch (item.getItemId()) {
                         case R.id.navigation_home:
-                            openFragment(HomeFragment.newInstance(user, email));
+                            openFragment(HomeFragment.newInstance());
                             return true;
                         case R.id.navigation_book:
                             openFragment(SearchFragment.newInstance(email, user));

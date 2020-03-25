@@ -1,7 +1,7 @@
 package com.iot.smartlockerapp;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -11,18 +11,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -101,70 +99,80 @@ public class SignupActivity extends AppCompatActivity {
         //Log.d("PACKET", regForm.toString());
 
         RequestBody body = RequestBody.create(regForm.toString(), MediaType.parse("application/json; charset=utf-8"));
-        postRequest(MainActivity.url+"/signup", body);
+        postRequest(MainActivity.url + "/signup", body);
 
-        /*
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
-                        onSignupSuccess();
-                        // onSignupFailed();
-                    }
-                }, 3000);
-        */
+
     }
 
     private void postRequest(String postUrl, RequestBody postBody) {
 
-        //Log.d("ERR", postBody.toString());
+        Log.d("POSTURL", postUrl);
 
-        OkHttpClient client = new OkHttpClient();
+        HttpPostAsyncTask okHttpAsync = new HttpPostAsyncTask(postBody);
+        okHttpAsync.execute(postUrl);
 
-        final Request request = new Request.Builder()
-                .url(postUrl)
-                .post(postBody)
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .build();
+    }
 
-        // DOUBLE-CHECK EMAIL
+    private class HttpPostAsyncTask extends AsyncTask<String, Void, byte[]> {
 
-        Log.d("OK", "request done");
+        RequestBody postBody;
+        private String resp;
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, final @NotNull IOException e) {
-                call.cancel();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("ERR", "in onFailure");
-                        e.printStackTrace();
-                        onSignupFailed();
-                    }
-                });
+        private HttpPostAsyncTask(RequestBody postBody) {
+            this.postBody = postBody;
+            resp = "";
+        }
+
+        @Override
+        protected byte[] doInBackground(String... strings) {
+
+            // DOUBLE-CHECK EMAIL
+
+            Log.d("SIGNUP ACTIVITY", "request done");
+
+            String postUrl = strings[0];
+            Log.d("SIGNUP ACTIVITY", postUrl);
+
+            OkHttpClient client = new OkHttpClient();
+
+            final Request request = new Request.Builder()
+                    .url(postUrl)
+                    .post(postBody)
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                resp = response.body().string();
+                Log.d("SIGNUP ACTIVITY", resp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+            Log.d("RESPONSE", "RESPONSE" + resp);
+            try {
+                JSONObject json = new JSONObject(resp);
+                String responseString = json.getString("response");
+                Log.d("RESPONSE", responseString);
+                if (responseString.equals("success")) {
+                    //Log.d("RESPONSE", "AOOOOOOOOOOETER");
+                    onSignupSuccess();
+                } else {
+                    Log.d("ERR", responseString);
+                    Log.d("ERR", "onResponse failed");
+                    onSignupFailed();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull final Response response) throws IOException {
-                final String responseString = response.body().string().trim();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(responseString.equals("success")){
-                            onSignupSuccess();
-                        }
-                        else{
-                            Log.d("ERR", response.body().toString());
-                            Log.d("ERR", "onResponse failed");
-                            onSignupFailed();
-                        }
-                    }
-                });
-            }
-        });
+        }
     }
 
     private void onSignupSuccess() {
@@ -183,11 +191,6 @@ public class SignupActivity extends AppCompatActivity {
 
         _signupButton.setEnabled(true);
 
-        Intent i = new Intent(this, CompleteLoginActivity.class);
-        i.putExtra("token", base64Credentials);
-        i.putExtra("email", _emailText.getText().toString());
-
-        startActivity(i);
     }
 
     private boolean validate() {

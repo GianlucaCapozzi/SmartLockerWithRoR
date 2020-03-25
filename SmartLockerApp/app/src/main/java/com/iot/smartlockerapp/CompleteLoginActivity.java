@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
@@ -38,6 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 import butterknife.BindView;
@@ -46,6 +48,7 @@ import butterknife.internal.Utils;
 import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.ConnectionSpec;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -63,7 +66,6 @@ public class CompleteLoginActivity extends AppCompatActivity {
     @BindView(R.id.input_weight) EditText _weightText;
     @BindView(R.id.btn_confsignup) Button _signupButton;
 
-    private String picture;
     private String name;
     private String surname;
     private String age;
@@ -166,7 +168,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
         weight = _weightText.getText().toString();
 
         if (!validate()) {
-            onSignupFailed();
+            onCompleteSignFailed();
             return;
         }
 
@@ -196,99 +198,84 @@ public class CompleteLoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        //Log.d("PACKET", regForm.toString());
-
         RequestBody body = RequestBody.create(regForm.toString(), MediaType.parse("application/json; charset=utf-8"));
         postRequest(MainActivity.url+"/confsignup", body);
 
-    /*
-    new android.os.Handler().postDelayed(
-            new Runnable() {
-                public void run() {
-                    // On complete call either onSignupSuccess or onSignupFailed
-                    // depending on success
-                    onSignupSuccess();
-                    // onSignupFailed();
-                }
-            }, 3000);
-    */
     }
 
     private void postRequest(String postUrl, RequestBody postBody) {
 
-        //Log.d("ERR", postBody.toString());
+        Log.d("POSTURL", postUrl);
 
-        OkHttpClient client = new OkHttpClient();
+        HttpPostAsyncTask okHttpAsync = new HttpPostAsyncTask(postBody);
+        okHttpAsync.execute(postUrl);
 
-        final Request request = new Request.Builder()
-                .url(postUrl)
-                .post(postBody)
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .header("Authorization", base64Credentials)
-                .build();
-
-        Log.d("OK", "request done");
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, final @NotNull IOException e) {
-                call.cancel();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("ERR", "in onFailure");
-                        e.printStackTrace();
-                        onSignupFailed();
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull final Response response) throws IOException {
-                final String responseString = response.body().string().trim();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            JSONObject json = new JSONObject(response.body().string());
-                            String loginResponseString = json.getString("response");
-                            Log.d("LOGIN", "Response from the server: " + loginResponseString);
-                            if(loginResponseString.equals("success")) {
-                                onSignupSuccess();
-                            }
-                            else {
-                                onSignupFailed();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        });
     }
 
-    private void onSignupSuccess() {
+    private class HttpPostAsyncTask extends AsyncTask<String, Void, byte[]> {
+
+        RequestBody postBody;
+        private String resp;
+
+        private HttpPostAsyncTask(RequestBody postBody) {
+            this.postBody = postBody;
+            resp = "";
+        }
+
+        @Override
+        protected byte[] doInBackground(String... strings) {
+
+            // DOUBLE-CHECK EMAIL
+
+            Log.d(TAG, "request done");
+
+            String postUrl = strings[0];
+            Log.d(TAG, postUrl);
+
+            OkHttpClient client = new OkHttpClient();
+
+            final Request request = new Request.Builder()
+                    .url(postUrl)
+                    .post(postBody)
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", email)
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                resp = response.body().string();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+            Log.d(TAG, "RESPONSE" + resp);
+            try {
+                JSONObject json = new JSONObject(resp);
+                String loginResponseString = json.getString("response");
+                Log.d(TAG, "Response from the server: " + loginResponseString);
+                if(loginResponseString.equals("success")) {
+                    Log.d(TAG, "success");
+                    onCompleteSignSuccess();
+                }
+                else {
+                    Log.d(TAG, "failure");
+                    onCompleteSignFailed();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void onCompleteSignSuccess() {
         _signupButton.setEnabled(true);
         setResult(RESULT_OK, null);
-
-        String user = name + " " + surname;
-
-        Intent i = new Intent(this, MainActivity.class);
-        i.putExtra("user", user);
-        i.putExtra("email", email);
-        i.putExtra("image", imageUri);
-
-        startActivity(i);
-    }
-
-    private void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Signup failed", Toast.LENGTH_LONG).show();
-
-        _signupButton.setEnabled(true);
 
         String username = name + " " + surname;
 
@@ -303,7 +290,12 @@ public class CompleteLoginActivity extends AppCompatActivity {
                 .commit();
 
         startActivity(i);
+    }
 
+    private void onCompleteSignFailed() {
+        Toast.makeText(getBaseContext(), "Signup failed", Toast.LENGTH_LONG).show();
+
+        _signupButton.setEnabled(true);
 
     }
 
