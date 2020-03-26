@@ -6,8 +6,10 @@ Rails.application.routes.draw do
   get 'activation/:id', to: 'registration#confirm_email'
 
   post 'signup', to: 'registration#registrate'
-  post 'confsignup', to: 'configuration#configure'
+  post 'confprofile', to: 'configuration#configure'
   post 'forgetpass', to: 'recovery#forget'
-  post 'recoverypass', to: 'recovery#change_pass'
+  post 'recoverypass', to: 'recovery#change_pass_recovered'
+  post 'changepass', to: 'recovery#change_pass'
+  post 'changemail', to: 'recovery#change_email'
   
 end

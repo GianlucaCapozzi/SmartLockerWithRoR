@@ -24,7 +24,12 @@ class AuthorizeApiRequest
     end
     
     def check_token(token)
-        @decoded_token = decoded_auth_token(token)
+        if decoded_auth_token.nil?
+            errors.add(:token, 'Invalid token')
+            return false
+        end
+        
+        @decoded_token = decoded_auth_token
         if @decoded_token[:exp] < Time.now.to_i
             errors.add(:token, 'Token expired, please login again')
             return false

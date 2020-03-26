@@ -20,13 +20,22 @@ class ConfigureProfile
 
     def complete
         if check_token
-            @user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token
+            #############################
+            #@user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token        # DEBUG ONLY PLEASE UNCOMMENT IT !!!
+            # DEBUG ONLY PLEASE DELETE IT !!!
+            if User.exist?(email: http_auth_header)
+                @user ||= User.find_by_email(http_auth_header)                              
+            else
+                @user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token
+            end
+            #############################
+
             if @user
-                @user.img = @img
-                @user.name = @name
-                @user.surname = @surname
-                @user.age = @age
-                @user.weight = @weight
+                @user.img = @img                if not @img.empty?
+                @user.name = @name              if not @name.empty?
+                @user.surname = @surname        if not @surname.empty?
+                @user.age = @age                if (not @age.empty?) and @age.to_i > 0
+                @user.weight = @weight          if (not @weight.empty?) and @weight.to_f > 0
                 @user.info_completed = true
                 @user.save
             else
@@ -42,8 +51,19 @@ class ConfigureProfile
     end
 
     def check_token
+        #############################
+        # DEBUG ONLY PLEASE DELETE IT
+        if User.find_by_email(http_auth_header)
+            return true
+        end
+        #############################
+
+        if decoded_auth_token.nil?
+            errors.add(:token, 'Invalid token')
+            return false
+        end
+
         @decoded_token = decoded_auth_token
-        print @decoded_auth_token[:exp]
         if @decoded_token[:exp] < Time.now.to_i
             errors.add(:token, 'Token expired, please login again')
             return false

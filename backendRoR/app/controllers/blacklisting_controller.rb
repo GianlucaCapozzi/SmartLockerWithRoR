@@ -8,7 +8,7 @@ class BlacklistingController < ApplicationController
             render json: { 
                 response: "success",
                 auth_token: "Token blacklisted" 
-            }, status: :ok
+                }, status: :ok
         else
             render json: { 
                 response: "failure",
