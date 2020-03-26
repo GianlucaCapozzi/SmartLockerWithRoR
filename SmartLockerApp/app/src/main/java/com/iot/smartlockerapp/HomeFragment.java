@@ -1,6 +1,7 @@
 package com.iot.smartlockerapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,9 +30,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class HomeFragment extends Fragment {
 
     private String TAG = "HOME";
+
+    private static final String PREFS_NAME = "SmartLockSettings";
 
     private TextView no_bookingsRV;
     private RecyclerView bookedRV;
@@ -49,37 +54,31 @@ public class HomeFragment extends Fragment {
     public HomeFragment() {
     }
 
-    public static HomeFragment newInstance(String user, String email) {
+    public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString("user", user);
-        args.putString("email", email);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() != null){
-            user = getArguments().getString("user");
-            email = getArguments().getString("email");
-            Log.d(TAG, user);
-        }
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
-        Log.d(TAG, user);
+
+        SharedPreferences pref = this.getActivity().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        user = pref.getString("user", null);
+        email = pref.getString("email", null);
+
+        Log.d(TAG, "user: " + user);
+        Log.d(TAG, "email: " + email);
 
         ((MainActivity) getActivity()).getSupportActionBar().setTitle("Bookings");
 
         db = FirebaseFirestore.getInstance();
-
-        //usernameTV = (TextView) v.findViewById(R.id.usernameView);
-        //usernameTV.setText("Welcome, " + user);
 
         no_bookingsRV = v.findViewById(R.id.no_bookingsTV);
 

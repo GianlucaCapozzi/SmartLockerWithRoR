@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -52,6 +53,7 @@ public class CardBookingActivity extends AppCompatActivity {
     private Button delete;
 
     private TextView parkNameTV;
+    private TextView dateTV;
     private TextView lockNameTV;
 
     private String username;
@@ -81,7 +83,8 @@ public class CardBookingActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_booking_card);
 
-        parkNameTV = (TextView) findViewById(R.id.idParkName);
+        parkNameTV = (TextView) findViewById(R.id.idParkTV);
+        dateTV = (TextView) findViewById(R.id.idDateTV);
         lockNameTV = (TextView) findViewById(R.id.idLockName);
 
         username = getIntent().getStringExtra("user");
@@ -102,7 +105,8 @@ public class CardBookingActivity extends AppCompatActivity {
         String lockN = lockName.substring(0, lockName.length()-1);
         String lockID = lockName.substring(lockName.length()-1);
 
-        parkNameTV.setText(parkName);
+        parkNameTV.setText(city + " - " + parkName);
+        dateTV.setText(date);
         lockNameTV.setText(lockN + " " + lockID);
 
         authenticate = (Button) findViewById(R.id.idAuthButt);
@@ -125,7 +129,7 @@ public class CardBookingActivity extends AppCompatActivity {
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(v.getContext(), R.style.MyAlertDialog));
                 builder.setTitle("Confirm delete !");
                 builder.setMessage("You are about to delete your booking. Do you really want to proceed ?");
                 builder.setCancelable(false);

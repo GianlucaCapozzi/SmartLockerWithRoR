@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/group1">
+        <item android:id="@+id/homeDrw"
+            android:icon="@drawable/ic_home_white_24dp"
+            android:title="@string/title_home"/>
         <item android:id="@+id/account"
             android:icon="@drawable/ic_account_white_24dp"
             android:title="@string/title_account"/>

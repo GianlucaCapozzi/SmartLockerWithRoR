@@ -28,7 +28,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    static String url = "http://10.0.2.2:3000";
+    static String url = "https://smart-locker-macc.herokuapp.com";
     private static final String PREFS_NAME = "SmartLockSettings";
 
     private int fromActivity;
@@ -56,16 +56,17 @@ public class MainActivity extends AppCompatActivity {
         String email = pref.getString("email", null);
         String image = pref.getString("image", null);
 
+        final BottomNavigationView bottomNavigation = (BottomNavigationView) findViewById(R.id.navigation);
+        bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
         dl = (DrawerLayout) findViewById(R.id.activity_main);
         t = new ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close) {
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle("Menu");
                 invalidateOptionsMenu();
             }
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                getSupportActionBar().setTitle("Bookings");
                 invalidateOptionsMenu();
             }
         };
@@ -83,12 +84,22 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
                 switch (id) {
+                    case R.id.homeDrw:
+                        openFragment(HomeFragment.newInstance());
+                        bottomNavigation.setVisibility(View.VISIBLE);
+                        dl.closeDrawers();
+                        return true;
                     case R.id.account:
+                        getSupportActionBar().setTitle("Account");
+                        bottomNavigation.setVisibility(View.GONE);
                         openFragment(AccountFragment.newInstance());
                         dl.closeDrawers();
                         return true;
                     case R.id.settings:
-                        Toast.makeText(MainActivity.this, "Settings",Toast.LENGTH_SHORT).show();
+                        getSupportActionBar().setTitle("Settings");
+                        bottomNavigation.setVisibility(View.GONE);
+                        openFragment(SettingsFragment.newInstance());
+                        dl.closeDrawers();
                         return true;
                     case R.id.logout:
                         logout();
@@ -99,8 +110,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        BottomNavigationView bottomNavigation = (BottomNavigationView) findViewById(R.id.navigation);
-        bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
 
         fromActivity = getIntent().getIntExtra("fromActivity", 0);
 
@@ -125,11 +135,27 @@ public class MainActivity extends AppCompatActivity {
         drawerName.setText(name);
 
 
-        openFragment(HomeFragment.newInstance(name, email));
+        openFragment(HomeFragment.newInstance());
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(fromActivity == 2) {
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
+        }
+        else if(fromActivity == 1) {
+            Log.d(TAG, "FROM LOGIN");
+            if (rem_me == false) {
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
+            }
+        }
+    }
 
+    /*
     @Override
     protected void onStop() {
         super.onStop();
@@ -144,6 +170,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+     */
+
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -181,12 +209,14 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("MAIN", user);
                     switch (item.getItemId()) {
                         case R.id.navigation_home:
-                            openFragment(HomeFragment.newInstance(user, email));
+                            openFragment(HomeFragment.newInstance());
                             return true;
                         case R.id.navigation_book:
+                            getSupportActionBar().setTitle("Search Park");
                             openFragment(SearchFragment.newInstance(email, user));
                             return true;
                         case R.id.navigation_prev_bookings:
+                            getSupportActionBar().setTitle("Previous bookings");
                             openFragment(PrevBookingsFragment.newInstance(email));
                             return true;
                     }

@@ -38,12 +38,6 @@ public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> 
         this.username = username;
     }
 
-    private void printList() {
-        for (int i = 0; i < parkList.size(); i++) {
-            Log.d("PARKADAPTER", parkList.get(i).getName());
-        }
-    }
-
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -66,8 +60,6 @@ public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> 
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 for(QueryDocumentSnapshot doc : task.getResult()) {
-                                   Log.d("PARKADAPTER", doc.getId());
-
                                     Intent i = new Intent(v.getContext(), BookActivity.class);
                                     i.putExtra("user", user);
                                     i.putExtra("city", p.getName());

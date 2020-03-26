@@ -66,8 +66,6 @@ public class PrevBookingsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_prevbook, container, false);
 
-        ((MainActivity) getActivity()).getSupportActionBar().setTitle("Previous bookings");
-
         profileRV = v.findViewById(R.id.profileRV);
         profileRV.setLayoutManager(new LinearLayoutManager(getContext()));
 
