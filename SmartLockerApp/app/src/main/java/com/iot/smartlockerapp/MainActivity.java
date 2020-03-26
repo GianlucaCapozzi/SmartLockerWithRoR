@@ -139,6 +139,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(fromActivity == 2) {
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
+        }
+        else if(fromActivity == 1) {
+            Log.d(TAG, "FROM LOGIN");
+            if (rem_me == false) {
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
+            }
+        }
+    }
+
     /*
     @Override
     protected void onStop() {

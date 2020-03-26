@@ -44,6 +44,7 @@ import java.util.UUID;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -108,8 +109,8 @@ public class BookedNearYouActivity extends AppCompatActivity {
         if(dateTimeFragment == null) {
             dateTimeFragment = SwitchDateTimeDialogFragment.newInstance(
                     getString(R.string.label_datetime_dialog),
-                    getString(android.R.string.ok),
-                    getString(android.R.string.cancel),
+                    getString(R.string.ok),
+                    getString(R.string.cancel),
                     getString(R.string.clean) // Optional
             );
         }
@@ -124,6 +125,8 @@ public class BookedNearYouActivity extends AppCompatActivity {
         dateTimeFragment.setHighlightAMPMSelection(false);
         dateTimeFragment.setMinimumDateTime(new GregorianCalendar(2015, Calendar.JANUARY, 1).getTime());
         dateTimeFragment.setMaximumDateTime(new GregorianCalendar(2025, Calendar.DECEMBER, 31).getTime());
+
+        dateTimeFragment.setAlertStyle(R.style.MyAlertCalendar);
 
         // Define new day and month format
         try {

@@ -14,7 +14,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="176dp"
         android:text="@string/parkToBook"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textSize="22sp"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,7 +26,7 @@
         android:layout_height="664dp"
         android:layout_marginTop="28dp"
         android:layout_marginEnd="4dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textSize="18sp"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/parkToBook_label" />

@@ -3,9 +3,11 @@ package com.iot.smartlockerapp;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -45,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final int IS_LOG = 1;
 
     private String user;
+    private String image;
     private boolean value;
 
     @BindView(R.id.input_email) EditText _emailText;
@@ -114,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 RequestBody body = RequestBody.create(forgotForm.toString(), MediaType.parse("application/json; charset=utf-8"));
-                postRequestReset(MainActivity.url+"/forgetpass", body);
+                postResetRequest(MainActivity.url+"/forgetpass", body);
             }
         });
 
@@ -149,115 +152,147 @@ public class LoginActivity extends AppCompatActivity {
 
         RequestBody body = RequestBody.create(loginForm.toString(), MediaType.parse("application/json; charset=utf-8"));
 
-        postRequest(MainActivity.url+"/login", body);
+        postLoginRequest(MainActivity.url+"/login", body);
 
     }
 
-    private void postRequestReset(String postUrl, RequestBody postBody) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS))
-                .build();
+    private void postResetRequest(String postUrl, RequestBody postBody) {
 
-        Request request = new Request.Builder()
-                .url(postUrl)
-                .post(postBody)
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull final Response response) throws IOException {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            JSONObject json = new JSONObject(response.body().string());
-                            String loginResponseString = json.getString("response");
-                            Log.d("RESET", "Response from the server: " + loginResponseString);
-                            if(loginResponseString.equals("success")) {
-                                onResetSuccess();
-                            }
-                            else {
-                                onResetFailed();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                call.cancel();
-                Log.d(TAG, "Failed");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        onResetFailed();
-                    }
-                });
-            }
-        });
+        HttpResetPostAsyncTask okHttpAsync = new HttpResetPostAsyncTask(postBody);
+        okHttpAsync.execute(postUrl);
 
     }
 
-    private void postRequest(String postUrl, RequestBody postBody) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS))
-                .build();
+    private void postLoginRequest(String postUrl, RequestBody postBody) {
 
-        Request request = new Request.Builder()
-                .url(postUrl)
-                .post(postBody)
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .build();
+        HttpLoginPostAsyncTask okHttpAsync = new HttpLoginPostAsyncTask(postBody);
+        okHttpAsync.execute(postUrl);
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                call.cancel();
-                Log.d(TAG, "Failed");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        onLoginFailed();
-                    }
-                });
+    }
+
+    private class HttpLoginPostAsyncTask extends AsyncTask<String, Void, byte[]> {
+
+        RequestBody postBody;
+        private String resp;
+
+        private HttpLoginPostAsyncTask(RequestBody postBody) {
+            this.postBody = postBody;
+            resp = "";
+        }
+
+        @Override
+        protected byte[] doInBackground(String... strings) {
+
+            // DOUBLE-CHECK EMAIL
+
+            Log.d(TAG, "LOGIN request done");
+
+            String postUrl = strings[0];
+            Log.d(TAG, postUrl);
+
+            OkHttpClient client = new OkHttpClient();
+
+            final Request request = new Request.Builder()
+                    .url(postUrl)
+                    .post(postBody)
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                resp = response.body().string();
+                Log.d(TAG, resp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+            Log.d("RESPONSE", "RESPONSE" + resp);
+            try {
+                JSONObject json = new JSONObject(resp);
+                String responseString = json.getString("response");
+                Log.d("RESPONSE", responseString);
+                if (responseString.equals("success")) {
+                    //Log.d("RESPONSE", "AOOOOOOOOOOETER");
+                    user = json.getString("name") + " " + json.getString("surname");
+                    image = json.getString("photo");
+                    onLoginSuccess();
+                } else {
+                    Log.d("ERR", responseString);
+                    Log.d("ERR", "onResponse failed");
+                    onLoginFailed();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull final Response response) throws IOException {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            JSONObject json = new JSONObject(response.body().string());
-                            String loginResponseString = json.getString("response");
-                            Log.d("LOGIN", "Response from the server: " + loginResponseString);
-                            if(loginResponseString.equals("success")) {
-                                String name = json.getString("name");
-                                String surname = json.getString("surname");
-                                user = name + " " + surname;
-                                onLoginSuccess();
-                            }
-                            else {
-                                onLoginFailed();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        });
+        }
+    }
 
+    private class HttpResetPostAsyncTask extends AsyncTask<String, Void, byte[]> {
+
+        RequestBody postBody;
+        private String resp;
+
+        private HttpResetPostAsyncTask(RequestBody postBody) {
+            this.postBody = postBody;
+            resp = "";
+        }
+
+        @Override
+        protected byte[] doInBackground(String... strings) {
+
+            // DOUBLE-CHECK EMAIL
+
+            Log.d(TAG, "LOGIN request done");
+
+            String postUrl = strings[0];
+            Log.d(TAG, postUrl);
+
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(postUrl)
+                    .post(postBody)
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .build();
+            try {
+                Response response = client.newCall(request).execute();
+                resp = response.body().string();
+                Log.d(TAG, resp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+            Log.d(TAG, "RESPONSE" + resp);
+            try {
+                JSONObject json = new JSONObject(resp);
+                String responseString = json.getString("response");
+                Log.d(TAG + " RESET", responseString);
+                if (responseString.equals("success")) {
+                    Log.d(TAG + " RESET", responseString);
+                    onResetSuccess();
+                } else {
+                    Log.d(TAG + " RESET", responseString);
+                    Log.d(TAG + " RESET", "onResponse failed");
+                    onResetFailed();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     @Override
@@ -270,10 +305,13 @@ public class LoginActivity extends AppCompatActivity {
 
         Intent i = new Intent(this, MainActivity.class);
 
+
+
         getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                 .edit()
                 .putString("user", user)
                 .putString("email", _emailText.getText().toString())
+                .putString("image", image)
                 .commit();
 
         i.putExtra("fromActivity", IS_LOG);
@@ -290,7 +328,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onResetSuccess() {
-        AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+        AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(LoginActivity.this, R.style.MyAlertDialog)).create();
         alertDialog.setTitle("Reset Password");
         alertDialog.setMessage("Check your email for temporary password");
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
@@ -307,7 +345,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onResetFailed(){
         Toast.makeText(getBaseContext(), "Reset failed", Toast.LENGTH_LONG).show();
-        AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+        AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(LoginActivity.this, R.style.MyAlertDialog)).create();
         alertDialog.setTitle("Reset Password");
         alertDialog.setMessage("An error has occurred");
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",

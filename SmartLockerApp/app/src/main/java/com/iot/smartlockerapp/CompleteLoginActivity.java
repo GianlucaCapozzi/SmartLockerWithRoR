@@ -199,7 +199,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
         }
 
         RequestBody body = RequestBody.create(regForm.toString(), MediaType.parse("application/json; charset=utf-8"));
-        postRequest(MainActivity.url+"/confsignup", body);
+        postRequest(MainActivity.url+"/confprofile", body);
 
     }
 

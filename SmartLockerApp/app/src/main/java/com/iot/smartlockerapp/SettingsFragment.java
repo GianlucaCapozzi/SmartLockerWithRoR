@@ -1,5 +1,6 @@
 package com.iot.smartlockerapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Html;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,21 +54,53 @@ public class SettingsFragment extends Fragment {
 
         usernameTV = v.findViewById(R.id.usernameSettings);
         String styledUsnameText = "<strong> Username Settings </strong>"
-                + "<br /> <small>" + name + "</small>";
+                + "<br />" + name;
         usernameTV.setText(Html.fromHtml(styledUsnameText, Html.FROM_HTML_MODE_LEGACY));
+
+        usernameTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View w) {
+                Toast.makeText(w.getContext(), "Clicked on username settings", Toast.LENGTH_LONG).show();
+            }
+        });
 
         emailTV = v.findViewById(R.id.emailSettings);
         String styledEmailText = "<strong> Email Settings </strong>"
                 + "<br />" + email;
         emailTV.setText(Html.fromHtml(styledEmailText, Html.FROM_HTML_MODE_LEGACY));
 
+        emailTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View w) {
+                //Toast.makeText(w.getContext(), "Clicked on email settings", Toast.LENGTH_LONG).show();
+                Intent i = new Intent(w.getContext(), ChangeEmailActivity.class);
+                startActivity(i);
+            }
+        });
+
         passTV = v.findViewById(R.id.passwordSettings);
-        passTV.setText(Html.fromHtml("<strong> Password Settings </strong>", Html.FROM_HTML_MODE_LEGACY));
+        String styledPassText = "<strong> Password Settings </strong>"
+                + "<br />Change your password";
+        passTV.setText(Html.fromHtml(styledPassText, Html.FROM_HTML_MODE_LEGACY));
+
+        passTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View w) {
+                Toast.makeText(w.getContext(), "Clicked on password settings", Toast.LENGTH_LONG).show();
+            }
+        });
 
         profileTV = v.findViewById(R.id.personalSettings);
         String styledPersText = "<strong> Profile Settings </strong>"
-                + "<br /> <small> Profile picture, age, weight </small>";
+                + "<br />Profile picture, age, weight";
         profileTV.setText(Html.fromHtml(styledPersText, Html.FROM_HTML_MODE_LEGACY));
+
+        profileTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View w) {
+                Toast.makeText(w.getContext(), "Clicked on personal settings", Toast.LENGTH_LONG).show();
+            }
+        });
 
         return v;
 

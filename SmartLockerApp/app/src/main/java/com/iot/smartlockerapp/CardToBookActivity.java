@@ -14,6 +14,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -48,14 +49,9 @@ import androidx.appcompat.app.AppCompatActivity;
 public class CardToBookActivity extends AppCompatActivity {
 
     private Button selBtn;
-    private TextView calView;
-
-    private SwitchDateTimeDialogFragment dateTimeFragment;
 
     private MapView mapView;
     private GoogleMap map;
-
-    private static final String TAG_DATETIME_FRAGMENT = "TAG_DATETIME_FRAGMENT";
 
     private static final String TAG = "Booking";
     private String parkName;
@@ -97,7 +93,7 @@ public class CardToBookActivity extends AppCompatActivity {
         final double[] coordinates = getCoordinates(parkAddress);
 
         TextView parkLabel = (TextView) findViewById(R.id.idParkName);
-        parkLabel.setText(parkName);
+        parkLabel.setText(city + "-" + parkName);
 
         mapView = (MapView) findViewById(R.id.idMapView);
 
@@ -107,7 +103,14 @@ public class CardToBookActivity extends AppCompatActivity {
             public void onMapReady(GoogleMap googleMap) {
                 map = googleMap;
                 map.getUiSettings().setMyLocationButtonEnabled(false);
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(coordinates[0], coordinates[1]), 17));
+                map.setBuildingsEnabled(true);
+                CameraPosition cameraPosition = new CameraPosition(
+                        new LatLng(coordinates[0], coordinates[1]),
+                        18,
+                        45,
+                        67
+                );
+                map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 map.addMarker(new MarkerOptions()
                         .position(new LatLng(coordinates[0], coordinates[1]))
                         .title(parkName + " entrance"));
