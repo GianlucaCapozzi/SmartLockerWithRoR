@@ -81,6 +81,7 @@ class RecoveryController < ActionController::API
 
 
     private
+    
     def change(user)
         user.email = params[:new_mail]          if params[:new_mail] != nil
 
