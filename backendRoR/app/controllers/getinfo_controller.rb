@@ -11,9 +11,9 @@ class GetinfoController < ApplicationController
                 email: user.email,
                 name: user.name,
                 surname: user.surname,
-                photo: user.img,
                 age: user.age,
-                weight: user.weight.to_f
+                weight: user.weight.to_f,
+                photo: user.img
                 }, status: :ok
         else
             render json: { 
