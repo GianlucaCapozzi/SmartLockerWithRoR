@@ -1,103 +1,78 @@
 package com.iot.smartlockerapp;
 
 import android.Manifest;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.mikhaellopez.circularimageview.CircularImageView;
-
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.logging.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.internal.Utils;
 import de.hdodenhof.circleimageview.CircleImageView;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.ConnectionSpec;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class CompleteLoginActivity extends AppCompatActivity {
+public class ChangeProfileActivity extends AppCompatActivity {
 
-    private static final String TAG = "ConfSignupActivity";
-
-    @BindView(R.id.input_image) CircleImageView _profilePict;
-    @BindView(R.id.input_name) EditText _nameText;
-    @BindView(R.id.input_surname) EditText _surnText;
-    @BindView(R.id.input_age) EditText _ageText;
-    @BindView(R.id.input_weight) EditText _weightText;
-    @BindView(R.id.btn_confsignup) Button _signupButton;
-
-    private String name;
-    private String surname;
-    private String age;
-    private String weight;
-    private String imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
-
-    private String base64Credentials;
-    private String email;
-
-    private final static int IS_SIGNUP = 2;
+    private static final String TAG = "ChangeProfileActivity";
 
     private final static int RESULT_LOAD_IMAGE = 1;
 
     private static final String PREFS_NAME = "SmartLockSettings";
 
+    private String age;
+    private String weight;
+    private String imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
+
+    @BindView(R.id.input_new_image) CircleImageView _profilePict;
+    @BindView(R.id.input_new_age) EditText _ageText;
+    @BindView(R.id.input_new_weight) EditText _weightText;
+    @BindView(R.id.btn_changeProfile) Button _changeProfileButton;
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try
-        {
-            this.getSupportActionBar().hide();
-        }
-        catch (NullPointerException e){}
-        setContentView(R.layout.activity_complogin);
+
+        setContentView(R.layout.activity_change_profile);
         ButterKnife.bind(this);
+
+        getSupportActionBar().setTitle("Change Profile");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         _profilePict.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (ActivityCompat.checkSelfPermission(CompleteLoginActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(CompleteLoginActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, RESULT_LOAD_IMAGE);
+                if (ActivityCompat.checkSelfPermission(ChangeProfileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(ChangeProfileActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, RESULT_LOAD_IMAGE);
                 }
                 else {
                     Intent i = new Intent(Intent.ACTION_PICK,
@@ -108,10 +83,10 @@ public class CompleteLoginActivity extends AppCompatActivity {
             }
         });
 
-        _signupButton.setOnClickListener(new View.OnClickListener() {
+        _changeProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signup();
+                updateProfile();
             }
         });
 
@@ -159,38 +134,28 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
     }
 
-    public void signup() {
-        Log.d(TAG, "Signup");
+    private void updateProfile() {
 
-        name = _nameText.getText().toString();
-        surname = _surnText.getText().toString();
         age = _ageText.getText().toString();
         weight = _weightText.getText().toString();
 
-        if (!validate()) {
-            onCompleteSignFailed();
-            return;
+        _changeProfileButton.setEnabled(false);
+
+        if(age == null) {
+            age = "";
+        }
+        if(weight == null) {
+            weight = "";
         }
 
-        _signupButton.setEnabled(false);
+        if (imageUri.equals("R.drawable.com_facebook_profile_picture_blank_portrait")) {
 
-        base64Credentials = getIntent().getStringExtra("token");
-        email = getIntent().getStringExtra("email");
-
-        Log.d(TAG, email);
-
-        if(imageUri == null) {
-            imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
+            imageUri = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString("image", null);
         }
-
-        Log.d(TAG, base64Credentials);
-        Log.d(TAG, imageUri);
 
         JSONObject regForm = new JSONObject();
 
         try {
-            regForm.put("name", name);
-            regForm.put("surname", surname);
             regForm.put("age", age);
             regForm.put("weight", weight);
             regForm.put("img", imageUri);
@@ -207,17 +172,17 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         Log.d("POSTURL", postUrl);
 
-        HttpPostAsyncTask okHttpAsync = new HttpPostAsyncTask(postBody);
+        HttpPostUpdateProfileAsyncTask okHttpAsync = new HttpPostUpdateProfileAsyncTask(postBody);
         okHttpAsync.execute(postUrl);
 
     }
 
-    private class HttpPostAsyncTask extends AsyncTask<String, Void, byte[]> {
+    private class HttpPostUpdateProfileAsyncTask extends AsyncTask<String, Void, byte[]> {
 
         RequestBody postBody;
         private String resp;
 
-        private HttpPostAsyncTask(RequestBody postBody) {
+        private HttpPostUpdateProfileAsyncTask(RequestBody postBody) {
             this.postBody = postBody;
             resp = "";
         }
@@ -225,7 +190,9 @@ public class CompleteLoginActivity extends AppCompatActivity {
         @Override
         protected byte[] doInBackground(String... strings) {
 
-            // DOUBLE-CHECK EMAIL
+            SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+            String token = pref.getString("auth_token", null);
 
             Log.d(TAG, "request done");
 
@@ -239,7 +206,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
                     .post(postBody)
                     .header("Accept", "application/json")
                     .header("Content-Type", "application/json")
-                    .header("Authorization", email)
+                    .header("Authorization", token)
                     .build();
 
             try {
@@ -254,18 +221,44 @@ public class CompleteLoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(byte[] bytes) {
             super.onPostExecute(bytes);
-            Log.d(TAG, "RESPONSE" + resp);
+            Log.d(TAG, "RESPONSE: " + resp);
             try {
                 JSONObject json = new JSONObject(resp);
-                String loginResponseString = json.getString("response");
-                Log.d(TAG, "Response from the server: " + loginResponseString);
-                if(loginResponseString.equals("success")) {
+                String responseString = json.getString("response");
+                Log.d(TAG, "Response from the server: " + responseString);
+                if(responseString.equals("success")) {
                     Log.d(TAG, "success");
-                    onCompleteSignSuccess();
+                    getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                            .edit()
+                            .putString("image", imageUri)
+                            .apply();
+
+                    AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(ChangeProfileActivity.this, R.style.MyAlertDialog)).create();
+                    alertDialog.setTitle("Update Profile");
+                    alertDialog.setMessage("The profile was successfully updated!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                                    startActivity(i);
+                                }
+                            });
+                    alertDialog.show();
                 }
                 else {
                     Log.d(TAG, "failure");
-                    onCompleteSignFailed();
+                    AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(ChangeProfileActivity.this, R.style.MyAlertDialog)).create();
+                    alertDialog.setTitle("Update Profile");
+                    alertDialog.setMessage("The profile was not updated!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    return;
+                                }
+                            });
+                    alertDialog.show();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -273,49 +266,4 @@ public class CompleteLoginActivity extends AppCompatActivity {
         }
     }
 
-    private void onCompleteSignSuccess() {
-        _signupButton.setEnabled(true);
-        setResult(RESULT_OK, null);
-
-        String username = name + " " + surname;
-
-        Intent i = new Intent(this, MainActivity.class);
-
-        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                .edit()
-                .putString("user", username)
-                .putString("email", email)
-                .putString("image", imageUri)
-                .putInt("fromActivity", IS_SIGNUP)
-                .apply();
-
-        startActivity(i);
-    }
-
-    private void onCompleteSignFailed() {
-        Toast.makeText(getBaseContext(), "Signup failed", Toast.LENGTH_LONG).show();
-
-        _signupButton.setEnabled(true);
-
-    }
-
-    private boolean validate() {
-        boolean valid = true;
-
-        if (name.isEmpty() || name.length() < 3) {
-            _nameText.setError("at least 3 characters");
-            valid = false;
-        } else {
-            _nameText.setError(null);
-        }
-
-        if (surname.isEmpty() || surname.length() < 3) {
-            _surnText.setError("at least 3 characters");
-            valid = false;
-        } else {
-            _surnText.setError(null);
-        }
-
-        return valid;
-    }
 }

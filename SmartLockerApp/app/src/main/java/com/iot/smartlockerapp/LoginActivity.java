@@ -48,6 +48,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private String user;
     private String image;
+    private String token;
+    private String base64Credentials;
+
+    SharedPreferences pref;
+
     private boolean value;
 
     @BindView(R.id.input_email) EditText _emailText;
@@ -69,16 +74,31 @@ public class LoginActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String name = pref.getString("user", null);
-        String email = pref.getString("email", null);
+        pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
+        int fromActivity = pref.getInt("fromActivity", 0);
+        boolean rem_me;
 
-        if(name != null && email != null) {
-            Intent i = new Intent(this, MainActivity.class);
-            startActivity(i);
+        if(fromActivity == 1) {
+            rem_me = pref.getBoolean("remember", true);
+            if (rem_me == false) {
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("user").apply();
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("email").apply();
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("password").apply();
+            }
+            else {
+
+                login();
+            }
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
         }
 
+        else if(fromActivity == 2) {
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("user").apply();
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("email").apply();
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("password").apply();
+        }
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -126,21 +146,37 @@ public class LoginActivity extends AppCompatActivity {
     public void login() {
         Log.d(TAG, "Login");
 
-        if (!validate()) {
-            onLoginFailed();
-            return;
-        }
+
 
         _loginButton.setEnabled(false);
 
         value = _checkRem.isChecked();
 
+        String get_email = pref.getString("email", null);
+        String get_psw = pref.getString("password", null);
 
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+        //Log.d(TAG, get_email);
+        //Log.d(TAG, get_psw);
 
-        String credentials = email + ":" + password;
-        String base64Credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+        String email;
+        String password;
+
+        if(get_email != null && get_psw != null) {
+            email = get_email;
+            base64Credentials = get_psw;
+        }
+
+        else {
+            if (!validate()) {
+                onLoginFailed();
+                return;
+            }
+            email = _emailText.getText().toString();
+            password = _passwordText.getText().toString();
+
+            String credentials = email + ":" + password;
+            base64Credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+        }
 
         JSONObject loginForm = new JSONObject();
         try {
@@ -218,9 +254,10 @@ public class LoginActivity extends AppCompatActivity {
                 String responseString = json.getString("response");
                 Log.d("RESPONSE", responseString);
                 if (responseString.equals("success")) {
-                    //Log.d("RESPONSE", "AOOOOOOOOOOETER");
                     user = json.getString("name") + " " + json.getString("surname");
                     image = json.getString("photo");
+                    token = json.getString("auth_token");
+                    Log.d(TAG, "TOKEN: " + token);
                     onLoginSuccess();
                 } else {
                     Log.d("ERR", responseString);
@@ -249,7 +286,7 @@ public class LoginActivity extends AppCompatActivity {
 
             // DOUBLE-CHECK EMAIL
 
-            Log.d(TAG, "LOGIN request done");
+            Log.d(TAG, "RESET request done");
 
             String postUrl = strings[0];
             Log.d(TAG, postUrl);
@@ -303,20 +340,36 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onLoginSuccess() {
 
-        Intent i = new Intent(this, MainActivity.class);
+        String name = pref.getString("user", null);
+        String email = pref.getString("email", null);
 
 
+        if(name != null && email != null) {
+            Intent i = new Intent(this, MainActivity.class);
+            getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                    .edit()
+                    .putString("image", image)
+                    .putString("auth_token", token)
+                    .apply();
+            startActivity(i);
+        }
 
-        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        else {
+            Intent i = new Intent(this, MainActivity.class);
+
+            getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                 .edit()
                 .putString("user", user)
                 .putString("email", _emailText.getText().toString())
                 .putString("image", image)
-                .commit();
+                .putString("auth_token", token)
+                .putInt("fromActivity", IS_LOG)
+                .putBoolean("remember", value)
+                .putString("password", base64Credentials)
+                .apply();
 
-        i.putExtra("fromActivity", IS_LOG);
-        i.putExtra("remember", value);
-        startActivity(i);
+            startActivity(i);
+        }
 
         finish();
     }

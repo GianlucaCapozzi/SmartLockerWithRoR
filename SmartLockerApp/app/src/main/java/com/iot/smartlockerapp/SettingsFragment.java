@@ -60,7 +60,8 @@ public class SettingsFragment extends Fragment {
         usernameTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View w) {
-                Toast.makeText(w.getContext(), "Clicked on username settings", Toast.LENGTH_LONG).show();
+                Intent i = new Intent(w.getContext(), ChangeUsernameActivity.class);
+                startActivity(i);
             }
         });
 
@@ -98,7 +99,9 @@ public class SettingsFragment extends Fragment {
         profileTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View w) {
-                Toast.makeText(w.getContext(), "Clicked on personal settings", Toast.LENGTH_LONG).show();
+                //Toast.makeText(w.getContext(), "Clicked on personal settings", Toast.LENGTH_LONG).show();
+                Intent i = new Intent(w.getContext(), ChangeProfileActivity.class);
+                startActivity(i);
             }
         });
 

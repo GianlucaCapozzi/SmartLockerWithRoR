@@ -43,6 +43,12 @@
     <string name="email">Email</string>
     <string name="new_email">New Email</string>
     <string name="conf_new_email">Change Email</string>
+    <string name="new_name">New Name</string>
+    <string name="new_surname">New Surname</string>
+    <string name="conf_new_username">Change username</string>
+    <string name="new_age">New Age</string>
+    <string name="new_weight">New Weight</string>
+    <string name="update_profile">Update Profile</string>
     <string name="password">Password</string>
     <string name="conf_password">Re-enter Password</string>
     <string name="temp_password">Temporary Password</string>

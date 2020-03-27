@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -24,18 +25,24 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
 import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     static String url = "https://smart-locker-macc.herokuapp.com";
     private static final String PREFS_NAME = "SmartLockSettings";
 
-    private int fromActivity;
-    private boolean rem_me;
-
     private String user;
     private String email;
+    private String token;
 
     private TextView drawerName;
     private CircleImageView profilePict;
@@ -53,8 +60,10 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String name = pref.getString("user", null);
-        String email = pref.getString("email", null);
         String image = pref.getString("image", null);
+
+        token = pref.getString("auth_token", null);
+        Log.d(TAG, "Auth_token: " + token);
 
         final BottomNavigationView bottomNavigation = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -110,17 +119,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
-        fromActivity = getIntent().getIntExtra("fromActivity", 0);
-
-        Log.d(TAG, "FROM ACTIVITY: " + fromActivity);
-
-        rem_me = true;
-        if(fromActivity == 1) { // Caller is login
-            rem_me = getIntent().getBooleanExtra("remember", true);
-        }
-
         View header = nv.getHeaderView(0);
 
         if(!image.equals("R.drawable.com_facebook_profile_picture_blank_portrait")) {
@@ -138,40 +136,6 @@ public class MainActivity extends AppCompatActivity {
         openFragment(HomeFragment.newInstance());
 
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(fromActivity == 2) {
-            getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
-            getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
-        }
-        else if(fromActivity == 1) {
-            Log.d(TAG, "FROM LOGIN");
-            if (rem_me == false) {
-                getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
-                getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
-            }
-        }
-    }
-
-    /*
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if(fromActivity == 2) {
-            getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
-            getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
-        }
-        else if(fromActivity == 1) {
-            if (rem_me == false) {
-                getSharedPreferences(PREFS_NAME, 0).edit().remove("user").commit();
-                getSharedPreferences(PREFS_NAME, 0).edit().remove("email").commit();
-            }
-        }
-    }
-     */
-
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -194,9 +158,66 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        getSharedPreferences(PREFS_NAME, 0).edit().clear().commit();
-        Intent i = new Intent(this, LoginActivity.class);
-        startActivity(i);
+
+        // SEND TOKEN TO SERVER FOR BLACKLIST
+        String postUrl = url + "/logout";
+        HttpLogoutGetAsyncTask okHttpAsync = new HttpLogoutGetAsyncTask();
+        okHttpAsync.execute(postUrl);
+
+    }
+
+    private class HttpLogoutGetAsyncTask extends AsyncTask<String, Void, byte[]> {
+
+        private String resp;
+
+        private HttpLogoutGetAsyncTask() {
+            resp = "";
+        }
+
+        @Override
+        protected byte[] doInBackground(String... strings) {
+
+            Log.d(TAG + " logout", "request done");
+
+            String postUrl = strings[0];
+            Log.d(TAG + " logout", postUrl);
+
+            OkHttpClient client = new OkHttpClient();
+
+            final Request request = new Request.Builder()
+                    .url(postUrl)
+                    .header("Authorization", token)
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                resp = response.body().string();
+                Log.d(TAG + " logout", resp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+            try {
+                JSONObject json = new JSONObject(resp);
+                String responseString = json.getString("response");
+                Log.d(TAG + " logout", responseString);
+                if (responseString.equals("success")) {
+                    getSharedPreferences(PREFS_NAME, 0).edit().clear().commit();
+                    Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(i);
+                } else {
+                    Log.d(TAG + " logout" + " ERR", responseString);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener =

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -18,14 +17,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/input_new_email"
+        android:id="@+id/input_new_name"
         android:layout_width="365dp"
         android:layout_height="54dp"
         android:layout_marginStart="23dp"
         android:layout_marginTop="72dp"
         android:layout_marginEnd="23dp"
         android:ems="10"
-        android:hint="@string/new_email"
+        android:hint="@string/new_name"
         android:inputType="textEmailAddress"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,18 +32,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_logo" />
 
+    <EditText
+        android:id="@+id/input_new_surname"
+        android:layout_width="365dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="44dp"
+        android:layout_marginEnd="23dp"
+        android:ems="10"
+        android:hint="@string/new_surname"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_new_name" />
+
     <Button
-        android:id="@+id/btn_change_email"
+        android:id="@+id/btn_change_username"
         android:layout_width="365dp"
         android:layout_height="54dp"
         android:layout_marginStart="23dp"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="23dp"
         android:ems="10"
-        android:text="@string/conf_new_email"
+        android:text="@string/conf_new_username"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/input_new_email" />
+        app:layout_constraintTop_toBottomOf="@+id/input_new_surname" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
