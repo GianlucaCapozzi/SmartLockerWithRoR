@@ -42,6 +42,7 @@
     <string name="logout">Logout</string>
     <string name="email">Email</string>
     <string name="new_email">New Email</string>
+    <string name="new_email_check">Confirm New Email</string>
     <string name="conf_new_email">Change Email</string>
     <string name="new_name">New Name</string>
     <string name="new_surname">New Surname</string>

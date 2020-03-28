@@ -128,7 +128,7 @@ public class LockerActivity extends AppCompatActivity {
         String lockPark = city + park + lockName;
         int lockHash = lockPark.hashCode();
 
-        String hc = user + " " + city + " " + park + " " + strDate + " " + lockPark;
+        String hc = user + " " + city + " " + park + " " + strDate + " " + lockHash;
         int bookHash = hc.hashCode();
 
         Map<String, Object> booking = new HashMap<>();

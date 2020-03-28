@@ -50,7 +50,7 @@ public class ChangeProfileActivity extends AppCompatActivity {
 
     private String age;
     private String weight;
-    private String imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
+    private String imageUri;
 
     @BindView(R.id.input_new_image) CircleImageView _profilePict;
     @BindView(R.id.input_new_age) EditText _ageText;
@@ -66,6 +66,14 @@ public class ChangeProfileActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle("Change Profile");
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        String image = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString("image", null);
+
+        if(!image.equals("R.drawable.com_facebook_profile_picture_blank_portrait")) {
+            byte[] decodedString = Base64.decode(image, Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            _profilePict.setImageBitmap(decodedByte);
+        }
 
         _profilePict.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,9 +156,8 @@ public class ChangeProfileActivity extends AppCompatActivity {
             weight = "";
         }
 
-        if (imageUri.equals("R.drawable.com_facebook_profile_picture_blank_portrait")) {
-
-            imageUri = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString("image", null);
+        if (!imageUri.equals(getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString("image", null)) && imageUri == null) {
+            imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
         }
 
         JSONObject regForm = new JSONObject();

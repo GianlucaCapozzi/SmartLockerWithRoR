@@ -115,7 +115,7 @@ public class CardBookingActivity extends AppCompatActivity {
 
         String lockPark = city + parkName + lockName;
 
-        final String bookID = user + " " + city + " " + parkName + " " + date + " " + lockPark;
+        final String bookID = user + " " + city + " " + parkName + " " + date + " " + lockPark.hashCode();
         Log.d(TAG, "BookID: " + bookID);
 
 

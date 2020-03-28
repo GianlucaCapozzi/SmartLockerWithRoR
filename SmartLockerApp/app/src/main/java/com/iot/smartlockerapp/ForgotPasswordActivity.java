@@ -2,9 +2,11 @@ package com.iot.smartlockerapp;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,7 +35,9 @@ import okhttp3.Response;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 
+    private static final String PREFS_NAME = "SmartLockSettings";
     private static final String TAG = "ResetPasswordActivity";
+    private static final int IS_RESET = 3;
 
     @BindView(R.id.input_temp_pwd) EditText _tempPwd;
     @BindView(R.id.input_new_pwd) EditText _newPwd;
@@ -63,20 +67,23 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private void reset() {
 
         if(!validate()) {
-            onResetFailed();
             return;
         }
 
         _resetBtn.setEnabled(true);
 
-        String tempPwd = Base64.encodeToString(_tempPwd.getText().toString().getBytes(), Base64.NO_WRAP);
-        String newPwd = Base64.encodeToString(_newPwd.getText().toString().getBytes(), Base64.NO_WRAP);
-        String confNewPwd = Base64.encodeToString(_confNewPwd.getText().toString().getBytes(), Base64.NO_WRAP);
+        String email = getIntent().getStringExtra("email");
+
+        Log.d(TAG, email);
+
+        String credentials = email + ":" + _newPwd.getText().toString();
+        String newPwd = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+        //String confNewPwd = Base64.encodeToString(_confNewPwd.getText().toString().getBytes(), Base64.NO_WRAP);
 
         JSONObject resForm = new JSONObject();
 
         try {
-            resForm.put("temp_pass", tempPwd);
+            resForm.put("temp_pass", _tempPwd.getText().toString());
             resForm.put("new_pass", newPwd);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -88,64 +95,80 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     }
 
     private void postRequest(String postUrl, RequestBody postBody) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS))
-                .build();
 
-        final Request request = new Request.Builder()
-                .url(postUrl)
-                .post(postBody)
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .build();
+        HttpNewPassPostAsyncTask okHttpAsync = new HttpNewPassPostAsyncTask(postBody);
+        okHttpAsync.execute(postUrl);
 
-        // DOUBLE-CHECK EMAIL
+    }
 
-        Log.d("OK", "request done");
+    private class HttpNewPassPostAsyncTask extends AsyncTask<String, Void, byte[]> {
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, final @NotNull IOException e) {
-                call.cancel();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("ERR", "in onFailure");
-                        e.printStackTrace();
-                        onResetFailed();
-                    }
-                });
+        RequestBody postBody;
+        private String resp;
+
+        private HttpNewPassPostAsyncTask(RequestBody postBody) {
+            this.postBody = postBody;
+            resp = "";
+        }
+
+        @Override
+        protected byte[] doInBackground(String... strings) {
+
+            // DOUBLE-CHECK EMAIL
+
+            Log.d(TAG, "LOGIN request done");
+
+            String postUrl = strings[0];
+            Log.d(TAG, postUrl);
+
+            OkHttpClient client = new OkHttpClient();
+
+            final Request request = new Request.Builder()
+                    .url(postUrl)
+                    .post(postBody)
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                resp = response.body().string();
+                Log.d(TAG, resp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+            Log.d(TAG, "RESPONSE" + resp);
+            try {
+                JSONObject json = new JSONObject(resp);
+                String responseString = json.getString("response");
+                Log.d(TAG, responseString);
+                if (responseString.equals("success")) {
+                    onResetSuccess();
+                } else {
+                    Log.d(TAG + " ERR", responseString);
+                    Log.d(TAG + " ERR", "onResponse failed");
+                    onResetFailed();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull final Response response) throws IOException {
-                final String responseString = response.body().string().trim();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            JSONObject json = new JSONObject(response.body().string());
-                            String resetResponseString = json.getString("response");
-                            Log.d("LOGIN", "Response from the server: " + resetResponseString);
-                            if(resetResponseString.equals("success")) {
-                                onResetSuccess();
-                            }
-                            else {
-                                onResetFailed();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        });
+        }
     }
 
     private void onResetSuccess() {
-        AlertDialog alertDialog = new AlertDialog.Builder(ForgotPasswordActivity.this).create();
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putInt("fromActivity", IS_RESET)
+                .apply();
+
+        AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(ForgotPasswordActivity.this, R.style.MyAlertDialog)).create();
         alertDialog.setTitle("Reset Password");
         alertDialog.setMessage("Your password has been reset");
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
@@ -162,7 +185,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     }
 
     private void onResetFailed() {
-        AlertDialog alertDialog = new AlertDialog.Builder(ForgotPasswordActivity.this).create();
+        AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(ForgotPasswordActivity.this, R.style.MyAlertDialog)).create();
         alertDialog.setTitle("Reset Password");
         alertDialog.setMessage("An error has occured");
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",

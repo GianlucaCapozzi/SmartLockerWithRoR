@@ -93,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
             getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
         }
 
-        else if(fromActivity == 2) {
+        else if(fromActivity == 2 || fromActivity == 3) {
             getSharedPreferences(PREFS_NAME, 0).edit().remove("user").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("email").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
@@ -116,7 +116,6 @@ public class LoginActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
                 startActivityForResult(intent, REQUEST_SIGNUP);
                 finish();
-                //overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
             }
         });
 
@@ -146,8 +145,6 @@ public class LoginActivity extends AppCompatActivity {
     public void login() {
         Log.d(TAG, "Login");
 
-
-
         _loginButton.setEnabled(false);
 
         value = _checkRem.isChecked();
@@ -163,12 +160,12 @@ public class LoginActivity extends AppCompatActivity {
 
         if(get_email != null && get_psw != null) {
             email = get_email;
-            base64Credentials = get_psw;
+            String credentials = get_email + ":" + get_psw;
+            base64Credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
         }
 
         else {
             if (!validate()) {
-                onLoginFailed();
                 return;
             }
             email = _emailText.getText().toString();
@@ -284,8 +281,6 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected byte[] doInBackground(String... strings) {
 
-            // DOUBLE-CHECK EMAIL
-
             Log.d(TAG, "RESET request done");
 
             String postUrl = strings[0];
@@ -312,7 +307,7 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(byte[] bytes) {
             super.onPostExecute(bytes);
-            Log.d(TAG, "RESPONSE" + resp);
+            Log.d(TAG + " RESET", "RESPONSE" + resp);
             try {
                 JSONObject json = new JSONObject(resp);
                 String responseString = json.getString("response");
@@ -365,7 +360,7 @@ public class LoginActivity extends AppCompatActivity {
                 .putString("auth_token", token)
                 .putInt("fromActivity", IS_LOG)
                 .putBoolean("remember", value)
-                .putString("password", base64Credentials)
+                .putString("password", _passwordText.getText().toString())
                 .apply();
 
             startActivity(i);
@@ -390,6 +385,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         Intent i = new Intent(getApplicationContext(), ForgotPasswordActivity.class);
+                        i.putExtra("email", _emailText.getText().toString());
                         startActivity(i);
                     }
                 });
