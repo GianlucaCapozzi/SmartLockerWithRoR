@@ -56,7 +56,7 @@ public class ChangeEmailActivity extends AppCompatActivity {
     String conf_email;
 
     private static final String PREFS_NAME = "SmartLockSettings";
-    private static final String TAG = "CHANGE EMAIL";
+    private static final String TAG = "CHANGE_EMAIL";
 
     // Firebase db
     private FirebaseFirestore db;

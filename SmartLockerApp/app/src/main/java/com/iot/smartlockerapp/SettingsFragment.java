@@ -87,7 +87,9 @@ public class SettingsFragment extends Fragment {
         passTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View w) {
-                Toast.makeText(w.getContext(), "Clicked on password settings", Toast.LENGTH_LONG).show();
+                //Toast.makeText(w.getContext(), "Clicked on password settings", Toast.LENGTH_LONG).show();
+                Intent i = new Intent(w.getContext(), ChangePasswordActivity.class);
+                startActivity(i);
             }
         });
 

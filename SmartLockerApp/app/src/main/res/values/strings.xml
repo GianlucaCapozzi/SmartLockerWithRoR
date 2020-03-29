@@ -55,6 +55,7 @@
     <string name="conf_password">Re-enter Password</string>
     <string name="temp_password">Temporary Password</string>
     <string name="reset_password">Reset Password</string>
+    <string name="old_password">Enter old Password</string>
     <string name="name">Name</string>
     <string name="surname">Surname</string>
     <string name="username">Username</string>
