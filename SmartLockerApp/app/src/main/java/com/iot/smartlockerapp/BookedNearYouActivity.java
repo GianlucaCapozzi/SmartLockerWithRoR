@@ -1,8 +1,10 @@
 package com.iot.smartlockerapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +45,7 @@ import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -119,12 +122,19 @@ public class BookedNearYouActivity extends AppCompatActivity {
         dateTimeFragment.setTimeZone(TimeZone.getDefault());
 
         // Init format
-        final SimpleDateFormat myDateFormat = new SimpleDateFormat("d MMM yyyy HH:mm", Locale.getDefault());
         // Assign unmodifiable values
+
+        Date minDate = new GregorianCalendar(2015, Calendar.JANUARY, 1).getTime();
+        Date maxDate = new GregorianCalendar(2200, Calendar.DECEMBER, 31).getTime();
+
+        DateFormat format = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
+
+        final Date currDate = new Date();
+
         dateTimeFragment.set24HoursMode(true);
         dateTimeFragment.setHighlightAMPMSelection(false);
-        dateTimeFragment.setMinimumDateTime(new GregorianCalendar(2015, Calendar.JANUARY, 1).getTime());
-        dateTimeFragment.setMaximumDateTime(new GregorianCalendar(2025, Calendar.DECEMBER, 31).getTime());
+        dateTimeFragment.setMinimumDateTime(minDate);
+        dateTimeFragment.setMaximumDateTime(maxDate);
 
         dateTimeFragment.setAlertStyle(R.style.MyAlertCalendar);
 
@@ -147,6 +157,22 @@ public class BookedNearYouActivity extends AppCompatActivity {
                 i.putExtra("city", city);
                 DateFormat dateFormat = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
                 String strDate = dateFormat.format(date);
+
+                if(getDifference(date, currDate)) {
+                    AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(BookedNearYouActivity.this, R.style.MyAlertDialog)).create();
+                    alertDialog.setTitle("Book locker");
+                    alertDialog.setMessage("Invalid date!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    return;
+                                }
+                            });
+                    alertDialog.show();
+                    return;
+                }
+
                 i.putExtra("date", strDate);
                 startActivity(i);
                 finish();
@@ -175,6 +201,17 @@ public class BookedNearYouActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private boolean getDifference(Date leave, Date booking){
+        long difference = leave.getTime() - booking.getTime();
+
+        Log.d(TAG, "difference : " + difference);
+
+        if(difference < 0) {
+            return true;
+        }
+        return false;
     }
 
 }

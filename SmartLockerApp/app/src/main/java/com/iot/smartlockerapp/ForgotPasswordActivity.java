@@ -78,7 +78,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         String credentials = email + ":" + _newPwd.getText().toString();
         String newPwd = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-        //String confNewPwd = Base64.encodeToString(_confNewPwd.getText().toString().getBytes(), Base64.NO_WRAP);
 
         JSONObject resForm = new JSONObject();
 

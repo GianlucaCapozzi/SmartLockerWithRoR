@@ -31,6 +31,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,6 +52,7 @@ public class CardBookingActivity extends AppCompatActivity {
     private Button authenticate;
     private Button leave;
     private Button delete;
+    private Button findPark;
 
     private TextView parkNameTV;
     private TextView dateTV;
@@ -79,125 +81,169 @@ public class CardBookingActivity extends AppCompatActivity {
         }
         catch (NullPointerException e){}
 
-        db = FirebaseFirestore.getInstance();
 
-        setContentView(R.layout.activity_booking_card);
+        try {
+            db = FirebaseFirestore.getInstance();
 
-        parkNameTV = (TextView) findViewById(R.id.idParkTV);
-        dateTV = (TextView) findViewById(R.id.idDateTV);
-        lockNameTV = (TextView) findViewById(R.id.idLockName);
+            setContentView(R.layout.activity_booking_card);
 
-        username = getIntent().getStringExtra("user");
-        user = getIntent().getStringExtra("email");
+            parkNameTV = (TextView) findViewById(R.id.idParkTV);
+            dateTV = (TextView) findViewById(R.id.idDateTV);
+            lockNameTV = (TextView) findViewById(R.id.idLockName);
 
-        Log.d(TAG, user);
+            username = getIntent().getStringExtra("user");
+            user = getIntent().getStringExtra("email");
 
-        city = getIntent().getStringExtra("city");
-        parkName = getIntent().getStringExtra("park");
-        lockHash = getIntent().getStringExtra("lockHash");
-        lockName = getIntent().getStringExtra("lockName");
-        lockState = getIntent().getBooleanExtra("lockState", true);
-        date = getIntent().getStringExtra("date");
+            Log.d(TAG, user);
 
-        Log.d(TAG, "LockName: " + lockName);
-        Log.d(TAG, "LockState: " + lockState);
+            city = getIntent().getStringExtra("city");
+            parkName = getIntent().getStringExtra("park");
+            lockHash = getIntent().getStringExtra("lockHash");
+            lockName = getIntent().getStringExtra("lockName");
+            lockState = getIntent().getBooleanExtra("lockState", true);
+            date = getIntent().getStringExtra("date");
 
-        String lockN = lockName.substring(0, lockName.length()-1);
-        String lockID = lockName.substring(lockName.length()-1);
+            Log.d(TAG, "LockName: " + lockName);
+            Log.d(TAG, "LockState: " + lockState);
 
-        parkNameTV.setText(city + " - " + parkName);
-        dateTV.setText(date);
-        lockNameTV.setText(lockN + " " + lockID);
+            String lockN = lockName.substring(0, lockName.length()-1);
+            String lockID = lockName.substring(lockName.length()-1);
 
-        authenticate = (Button) findViewById(R.id.idAuthButt);
-        leave = (Button) findViewById(R.id.idLeaveBtn);
-        delete = (Button) findViewById(R.id.idDeleteBtn);
+            parkNameTV.setText(city + " - " + parkName);
+            dateTV.setText(date);
+            lockNameTV.setText(lockN + " " + lockID);
 
-        String lockPark = city + parkName + lockName;
+            authenticate = (Button) findViewById(R.id.idAuthButt);
+            leave = (Button) findViewById(R.id.idLeaveBtn);
+            delete = (Button) findViewById(R.id.idDeleteBtn);
+            findPark = (Button) findViewById(R.id.idFindParkBtn);
 
-        final String bookID = user + " " + city + " " + parkName + " " + date + " " + lockPark.hashCode();
-        Log.d(TAG, "BookID: " + bookID);
-
-
-        leave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                leaveLocker(bookID, city, parkName, lockHash);
-            }
-        });
-
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(v.getContext(), R.style.MyAlertDialog));
-                builder.setTitle("Confirm delete !");
-                builder.setMessage("You are about to delete your booking. Do you really want to proceed ?");
-                builder.setCancelable(false);
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        deleteBooking(bookID, city, parkName, lockHash);
-                        Toast.makeText(getApplicationContext(), "You've choosen to delete you booking", Toast.LENGTH_SHORT).show();
-                        Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                        getApplicationContext().startActivity(i);
-                        finish();
-                    }
-                });
-
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getApplicationContext(), "You've changed your mind", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                builder.show();
-            }
-        });
-
-        Executor executor = Executors.newSingleThreadExecutor();
-
-        FragmentActivity activity = this;
-
-        final BiometricPrompt biometricPrompt = new BiometricPrompt(activity, executor, new BiometricPrompt.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                super.onAuthenticationError(errorCode, errString);
-                if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-                    // user clicked negative button
-                } else {
-                    //TODO: Called when an unrecoverable error has been encountered and the operation is complete.
+            findPark.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(getApplicationContext(), FindParkActivity.class);
+                    i.putExtra("city", city);
+                    i.putExtra("parkName", parkName);
+                    startActivity(i);
                 }
+            });
+
+            String lockPark = city + parkName + lockName;
+
+            final String bookID = user + " " + city + " " + parkName + " " + date + " " + lockPark.hashCode();
+            Log.d(TAG, "BookID: " + bookID);
+
+            DateFormat dateFormat = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
+
+            Date currDate = new Date();
+            String dateFormatted = dateFormat.format(currDate);
+            Log.d(TAG, dateFormatted);
+
+            Date currFormDate = dateFormat.parse(dateFormatted);
+            Date bookDate = dateFormat.parse(date);
+
+            boolean diff = getDifference(currFormDate, bookDate);
+
+            if(diff) {
+                leave.setEnabled(false);
+                authenticate.setEnabled(false);
             }
 
-            @Override
-            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                super.onAuthenticationSucceeded(result);
+            leave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    leaveLocker(bookID, city, parkName, lockHash);
+                }
+            });
 
-                setLockFull(city, parkName, lockHash);
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(v.getContext(), R.style.MyAlertDialog));
+                    builder.setTitle("Confirm delete !");
+                    builder.setMessage("You are about to delete your booking. Do you really want to proceed ?");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            deleteBooking(bookID, city, parkName, lockHash);
+                            Toast.makeText(getApplicationContext(), "You've choosen to delete you booking", Toast.LENGTH_SHORT).show();
+                            Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                            getApplicationContext().startActivity(i);
+                            finish();
+                        }
+                    });
 
-            }
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getApplicationContext(), "You've changed your mind", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
-            @Override
-            public void onAuthenticationFailed() {
-                super.onAuthenticationFailed();
-                //TODO: Called when a biometric is valid but not recognized.
-            }
-        });
+                    builder.show();
+                }
+            });
 
-        final BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Put your finger over the sensor")
-                .setSubtitle("Set the subtitle to display.")
-                .setDescription("Set the description to display")
-                .setNegativeButtonText("Dismiss")
-                .build();
+            Executor executor = Executors.newSingleThreadExecutor();
 
-        authenticate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                biometricPrompt.authenticate(promptInfo);
-            }
-        });
+            FragmentActivity activity = this;
+
+            final BiometricPrompt biometricPrompt = new BiometricPrompt(activity, executor, new BiometricPrompt.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                    super.onAuthenticationError(errorCode, errString);
+                    if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+                        // user clicked negative button
+                    } else {
+                        //TODO: Called when an unrecoverable error has been encountered and the operation is complete.
+                    }
+                }
+
+                @Override
+                public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                    super.onAuthenticationSucceeded(result);
+
+                    setLockFull(city, parkName, lockHash);
+
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                    super.onAuthenticationFailed();
+                    //TODO: Called when a biometric is valid but not recognized.
+                }
+            });
+
+            final BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                    .setTitle("Put your finger over the sensor")
+                    .setSubtitle("Set the subtitle to display.")
+                    .setDescription("Set the description to display")
+                    .setNegativeButtonText("Dismiss")
+                    .build();
+
+            authenticate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    biometricPrompt.authenticate(promptInfo);
+                }
+            });
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private boolean getDifference(Date leave, Date booking){
+        long difference = leave.getTime() - booking.getTime();
+
+        Log.d(TAG, "difference : " + difference);
+
+        if(difference < 0) {
+            return true;
+        }
+        return false;
     }
 
     private void setLockFull(String city, String parkName, String lockHash){

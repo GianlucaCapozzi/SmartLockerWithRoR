@@ -329,8 +329,6 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // Disable going back
-        moveTaskToBack(true);
     }
 
     private void onLoginSuccess() {
@@ -445,5 +443,7 @@ public class LoginActivity extends AppCompatActivity {
 
         return valid;
     }
+
+
 
 }

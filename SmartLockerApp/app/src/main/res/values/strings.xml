@@ -31,6 +31,7 @@
     <string name="title_activity_card_to_book">Map</string>
     <string name="locker_main">Select your locker</string>
     <string name="booking_home">Your Booking</string>
+    <string name="find_park">Find Park</string>
     <string name="leave_locker">Leave Locker</string>
     <string name="delete_booking">Delete Booking</string>
     <string name="sign_up">Sign up</string>

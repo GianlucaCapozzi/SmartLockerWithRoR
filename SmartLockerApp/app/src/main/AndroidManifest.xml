@@ -34,10 +34,10 @@
 
         <activity
             android:name=".LoginActivity"
+            android:noHistory="true"
             android:theme="@style/AppTheme.Dark">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -123,6 +123,14 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".FindParkActivity"
+            android:parentActivityName=".BookActivity"
+            android:theme="@style/AppTheme.Dark">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".CardBookingActivity" />
         </activity>
     </application>
 
