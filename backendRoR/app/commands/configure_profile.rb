@@ -1,11 +1,12 @@
 class ConfigureProfile
     prepend SimpleCommand
 
-    def initialize(headers = {}, img, name, surname, age, weight)
+    def initialize(headers = {}, img, name, surname, gender, age, weight)
         @headers = headers
         @img = img
         @name = name
         @surname = surname
+        @gender = gender
         @age = age
         @weight = weight
     end
@@ -23,7 +24,7 @@ class ConfigureProfile
             #############################
             #@user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token        # DEBUG ONLY PLEASE UNCOMMENT IT !!!
             # DEBUG ONLY PLEASE DELETE IT !!!
-            if User.exist?(email: http_auth_header)
+            if User.exists?(email: http_auth_header)
                 @user ||= User.find_by_email(http_auth_header)                              
             else
                 @user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token
@@ -31,11 +32,12 @@ class ConfigureProfile
             #############################
 
             if @user
-                @user.img = @img                if not @img.empty?
-                @user.name = @name              if not @name.empty?
-                @user.surname = @surname        if not @surname.empty?
-                @user.age = @age                if (not @age.empty?) and @age.to_i > 0
-                @user.weight = @weight          if (not @weight.empty?) and @weight.to_f > 0
+                @user.img = @img                if (not @img.nil?) and (not @img.empty?)
+                @user.name = @name              if (not @name.nil?) and (not @name.empty?)
+                @user.surname = @surname        if (not @surname.nil?) and (not @surname.empty?)
+                @user.gender = @gender          if (not @gender.nil?) and (not @gender.empty?) and (@gender == 'M' or @gender == 'F')
+                @user.age = @age                if (not @age.nil?) and (not @age.empty?) and @age.to_i > 0
+                @user.weight = @weight          if (not @weight.nil?) and (not @weight.empty?) and @weight.to_f > 0
                 @user.info_completed = true
                 @user.save
             else
