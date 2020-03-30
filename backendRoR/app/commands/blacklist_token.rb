@@ -14,12 +14,8 @@ class BlacklistToken
     attr_accessor :headers
 
     def blacklist
-        @user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token
-        if @user
-            BlacklistedToken.create(token: http_auth_header, user: @user, expire_at: decoded_auth_token[:exp]) if decoded_auth_token
-        else
-            errors.add(:token, 'User not found')
-        end
+        check = AuthorizeApiRequest.call(headers)
+        BlacklistedToken.create(token: http_auth_header, user: check.result, expire_at: decoded_auth_token[:exp]) if check.success?
     end
 
     def decoded_auth_token
