@@ -44,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     private String user;
     private String image;
     private String token;
+    private String gender;
     private String base64Credentials;
 
     SharedPreferences pref;
@@ -79,6 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             if (rem_me == false) {
                 getSharedPreferences(PREFS_NAME, 0).edit().remove("user").apply();
                 getSharedPreferences(PREFS_NAME, 0).edit().remove("email").apply();
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("gender").apply();
                 getSharedPreferences(PREFS_NAME, 0).edit().remove("password").apply();
             }
             else {
@@ -90,6 +92,7 @@ public class LoginActivity extends AppCompatActivity {
         else if(fromActivity == 2 || fromActivity == 3) {
             getSharedPreferences(PREFS_NAME, 0).edit().remove("user").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("email").apply();
+            getSharedPreferences(PREFS_NAME, 0).edit().remove("gender").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("password").apply();
         }
@@ -250,6 +253,7 @@ public class LoginActivity extends AppCompatActivity {
                     user = json.getString("name") + " " + json.getString("surname");
                     image = json.getString("photo");
                     token = json.getString("auth_token");
+                    gender = json.getString("gender");
                     Log.d(TAG, "TOKEN: " + token);
                     onLoginSuccess();
                 } else {
@@ -351,6 +355,7 @@ public class LoginActivity extends AppCompatActivity {
                 .putString("user", user)
                 .putString("email", _emailText.getText().toString())
                 .putString("image", image)
+                .putString("gender", gender)
                 .putString("auth_token", token)
                 .putInt("fromActivity", IS_LOG)
                 .putBoolean("remember", value)

@@ -53,6 +53,7 @@ public class BookedNearYouAdapter extends RecyclerView.Adapter<BookedNearYouAdap
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(v.getContext(), LockerActivity.class); // Go to lockerActivity
+                i.putExtra("user", user);
                 i.putExtra("parkName", b.getPark());
                 i.putExtra("date", b.getDate());
                 i.putExtra("city", b.getCity());

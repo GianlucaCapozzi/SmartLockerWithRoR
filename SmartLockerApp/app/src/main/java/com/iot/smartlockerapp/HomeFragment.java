@@ -46,6 +46,7 @@ public class HomeFragment extends Fragment {
 
     private String user;
     private String email;
+    private String gender;
     private String lockName;
     private boolean lockState;
 
@@ -72,9 +73,11 @@ public class HomeFragment extends Fragment {
         SharedPreferences pref = this.getActivity().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         user = pref.getString("user", null);
         email = pref.getString("email", null);
+        gender = pref.getString("gender", null);
 
         Log.d(TAG, "user: " + user);
         Log.d(TAG, "email: " + email);
+        Log.d(TAG, "gender: " + gender);
 
         ((MainActivity) getActivity()).getSupportActionBar().setTitle("Bookings");
 
@@ -133,6 +136,7 @@ public class HomeFragment extends Fragment {
                         Intent i = new Intent(v.getContext(), CardBookingActivity.class);
                         i.putExtra("user", user);
                         i.putExtra("email", email);
+                        i.putExtra("gender", gender);
                         i.putExtra("city", booking.getCity());
                         i.putExtra("park", booking.getPark());
                         i.putExtra("date", booking.getDate());

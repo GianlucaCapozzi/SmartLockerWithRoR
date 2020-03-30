@@ -2,6 +2,7 @@ package com.iot.smartlockerapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,7 +19,7 @@ import java.util.Date;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private String park, dateS, locker, leaveTime;
+    private String park, dateS, locker, leaveTime, km;
 
     private String durationS;
 
@@ -26,34 +27,37 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView dateTV;
     private TextView lockerTV;
     private TextView durationTV;
+    private TextView kmTV;
 
     private final static String TAG = "profAct";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /* Remove action bar */
-        try
-        {
-            this.getSupportActionBar().hide();
-        }
-        catch (NullPointerException e){}
+
         setContentView(R.layout.activity_profile_card);
+
+        getSupportActionBar().setTitle("Details");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         try {
             park = getIntent().getStringExtra("park");
             dateS = getIntent().getStringExtra("date");
             locker = getIntent().getStringExtra("locker");
             leaveTime = getIntent().getStringExtra("leaveTime");
+            km = getIntent().getStringExtra("km");
 
             parkTV = (TextView) findViewById(R.id.idParkTxt);
-            parkTV.setText(park);
+            String styledParkText = "<strong> Park: </strong>" + park;
+            parkTV.setText(Html.fromHtml(styledParkText, Html.FROM_HTML_MODE_LEGACY));
 
             dateTV = (TextView) findViewById(R.id.idDateTxt);
-            dateTV.setText(dateS);
+            String styledDateText = "<strong> Date: </strong>" + dateS;
+            dateTV.setText(Html.fromHtml(styledDateText, Html.FROM_HTML_MODE_LEGACY));
 
             lockerTV = (TextView) findViewById(R.id.idLockerTxt);
-            lockerTV.setText(locker);
+            String styledLockerText = "<strong> Locker: </strong>" + locker;
+            lockerTV.setText(Html.fromHtml(styledLockerText, Html.FROM_HTML_MODE_LEGACY));
 
             DateFormat dateFormat = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
 
@@ -62,7 +66,12 @@ public class ProfileActivity extends AppCompatActivity {
             durationS = getDifference(leaveDate, bookingDate);
 
             durationTV = (TextView) findViewById(R.id.idDurationTxt);
-            durationTV.setText(durationS);
+            String styledDurationText = "<strong> Duration: </strong>" + durationS;
+            durationTV.setText(Html.fromHtml(styledDurationText, Html.FROM_HTML_MODE_LEGACY));
+
+            kmTV = (TextView) findViewById(R.id.idKmTxt);
+            String styledKmText = "<strong> KM: </strong>" + km;
+            kmTV.setText(Html.fromHtml(styledKmText, Html.FROM_HTML_MODE_LEGACY));
 
         } catch (ParseException e) {
             e.printStackTrace();

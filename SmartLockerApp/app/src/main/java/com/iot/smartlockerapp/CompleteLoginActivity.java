@@ -18,6 +18,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -65,11 +67,13 @@ public class CompleteLoginActivity extends AppCompatActivity {
     @BindView(R.id.input_age) EditText _ageText;
     @BindView(R.id.input_weight) EditText _weightText;
     @BindView(R.id.btn_confsignup) Button _signupButton;
+    @BindView(R.id.genderRadioGroup) RadioGroup _radioGroup;
 
     private String name;
     private String surname;
     private String age;
     private String weight;
+    private String gender;
     private String imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
 
     private String base64Credentials;
@@ -186,6 +190,11 @@ public class CompleteLoginActivity extends AppCompatActivity {
         Log.d(TAG, base64Credentials);
         Log.d(TAG, imageUri);
 
+        int selectedG = _radioGroup.getCheckedRadioButtonId();
+
+        RadioButton selGend = findViewById(selectedG);
+        gender = selGend.getText().toString();
+
         JSONObject regForm = new JSONObject();
 
         try {
@@ -193,6 +202,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
             regForm.put("surname", surname);
             regForm.put("age", age);
             regForm.put("weight", weight);
+            regForm.put("gender", gender);
             regForm.put("img", imageUri);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -285,6 +295,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
                 .edit()
                 .putString("user", username)
                 .putString("email", email)
+                .putString("gender", gender)
                 .putString("image", imageUri)
                 .putInt("fromActivity", IS_SIGNUP)
                 .apply();

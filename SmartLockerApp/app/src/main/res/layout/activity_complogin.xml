@@ -57,48 +57,48 @@
         android:layout_width="365dp"
         android:layout_height="54dp"
         android:layout_marginStart="23dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="23dp"
         android:ems="10"
         android:hint="@string/surname"
-        android:textColor="@color/white"
         android:inputType="textPersonName"
+        android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/input_name" />
 
+    <!-- Weight Label -->
+
     <EditText
         android:id="@+id/input_age"
         android:layout_width="365dp"
         android:layout_height="54dp"
         android:layout_marginStart="23dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="23dp"
         android:ems="10"
         android:hint="@string/age"
-        android:textColor="@color/white"
         android:inputType="number"
+        android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/input_surname" />
-
-    <!-- Weight Label -->
 
     <EditText
         android:id="@+id/input_weight"
         android:layout_width="365dp"
         android:layout_height="54dp"
         android:layout_marginStart="23dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="23dp"
         android:ems="10"
         android:hint="@string/weight"
-        android:textColor="@color/white"
         android:inputType="numberDecimal"
+        android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.125"
@@ -112,13 +112,57 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="160dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="163dp"
         android:text="@string/create_account"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.485"
+        app:layout_constraintHorizontal_bias="0.482"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/input_weight" />
+        app:layout_constraintTop_toBottomOf="@+id/genderRadioGroup" />
+
+    <RadioGroup
+        android:id="@+id/genderRadioGroup"
+        android:layout_width="168dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_weight">
+
+        <TextView
+            android:id="@+id/radioHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Gender:"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/radioM"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="M"
+            android:textColor="@color/white"
+            android:textSize="16dp" />
+
+        <RadioButton
+            android:id="@+id/radioF"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
+            android:checked="false"
+            android:text="F"
+            android:textColor="@color/white"
+            android:textSize="16dp" />
+
+
+    </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

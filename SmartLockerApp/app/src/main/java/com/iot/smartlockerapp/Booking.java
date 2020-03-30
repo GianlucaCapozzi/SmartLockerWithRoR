@@ -11,6 +11,7 @@ public class Booking implements Serializable {
     private String city;
     private String park;
     private String date;
+    private String km;
     private boolean active;
     private String lockHash;
     private String leave;
@@ -57,6 +58,14 @@ public class Booking implements Serializable {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getKm() {
+        return km;
+    }
+
+    public void setKm(String km) {
+        this.km = km;
     }
 
     public boolean isActive() {

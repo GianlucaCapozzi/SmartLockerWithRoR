@@ -118,8 +118,9 @@ public class PrevBookingsFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Intent i = new Intent(v.getContext(), ProfileActivity.class);
-                        i.putExtra("park", booking.getPark());
+                        i.putExtra("park", booking.getCity() + " - " + booking.getPark());
                         i.putExtra("date", booking.getDate());
+                        i.putExtra("km", booking.getKm());
                         i.putExtra("locker", lockName);
                         i.putExtra("leaveTime", booking.getLeave());
                         v.getContext().startActivity(i);

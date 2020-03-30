@@ -2,6 +2,10 @@ package com.iot.smartlockerapp;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -48,7 +52,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.FragmentActivity;
 
-public class CardBookingActivity extends AppCompatActivity {
+public class CardBookingActivity extends AppCompatActivity implements SensorEventListener{
 
     private Button authenticate;
     private Button leave;
@@ -62,6 +66,11 @@ public class CardBookingActivity extends AppCompatActivity {
 
     private String username;
     private String user;
+    private String gender;
+
+    private int pace;
+    private float km;
+
     private String city;
     private String lockName;
     private String lockHash;
@@ -73,6 +82,12 @@ public class CardBookingActivity extends AppCompatActivity {
 
     // Firebase db
     private FirebaseFirestore db;
+
+    // Pedometer
+    private SensorManager sensorManager;
+    private Sensor accel;
+    private int numSteps;
+    private static final String TEXT_NUM_STEPS = "Number of Steps: ";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,8 +106,17 @@ public class CardBookingActivity extends AppCompatActivity {
 
             username = getIntent().getStringExtra("user");
             user = getIntent().getStringExtra("email");
+            gender = getIntent().getStringExtra("gender");
+
+            if(gender.equals("M")) {
+                pace = 78;
+            }
+            else {
+                pace = 70;
+            }
 
             Log.d(TAG, user);
+
 
             city = getIntent().getStringExtra("city");
             parkName = getIntent().getStringExtra("park");
@@ -121,6 +145,10 @@ public class CardBookingActivity extends AppCompatActivity {
             findPark = (Button) findViewById(R.id.idFindParkBtn);
             startTrain = (Button) findViewById(R.id.idStartTrainBtn);
             stopTrain = (Button) findViewById(R.id.idStopTrainBtn);
+
+            // Get an instance of the SensorManager
+            sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+            accel = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
 
             findPark.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -236,6 +264,27 @@ public class CardBookingActivity extends AppCompatActivity {
                 }
             });
 
+            startTrain.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    stopTrain.setEnabled(true);
+                    startTrain.setEnabled(false);
+                    numSteps = 0;
+                    sensorManager.registerListener(CardBookingActivity.this, accel, SensorManager.SENSOR_DELAY_FASTEST);
+                }
+            });
+
+            stopTrain.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startTrain.setEnabled(true);
+                    stopTrain.setEnabled(false);
+                    sensorManager.unregisterListener(CardBookingActivity.this);
+                    km = (float)(numSteps*pace)/(float)100000;
+                    Log.d(TAG, Float.toString(km));
+                }
+            });
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -313,6 +362,7 @@ public class CardBookingActivity extends AppCompatActivity {
         Map<String, Object> booking = new HashMap<>();
         booking.put("active", false);
         booking.put("leave", leaveTime);
+        booking.put("km", Float.toString(km));
 
         db.collection("bookings").document(Integer.toString(bookID.hashCode()))
                 .set(booking, SetOptions.merge())
@@ -377,6 +427,19 @@ public class CardBookingActivity extends AppCompatActivity {
                     }
                 });
 
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+            numSteps++;
+            Toast.makeText(this, TEXT_NUM_STEPS + numSteps, Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
 }
