@@ -15,23 +15,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.gson.JsonSerializer;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.ConnectionSpec;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -87,7 +82,6 @@ public class LoginActivity extends AppCompatActivity {
                 getSharedPreferences(PREFS_NAME, 0).edit().remove("password").apply();
             }
             else {
-
                 login();
             }
             getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
@@ -223,7 +217,9 @@ public class LoginActivity extends AppCompatActivity {
             String postUrl = strings[0];
             Log.d(TAG, postUrl);
 
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .build();
 
             final Request request = new Request.Builder()
                     .url(postUrl)

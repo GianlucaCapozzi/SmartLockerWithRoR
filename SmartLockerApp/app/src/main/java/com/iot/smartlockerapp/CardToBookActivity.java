@@ -69,13 +69,8 @@ public class CardToBookActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        try
-        {
-            this.getSupportActionBar().hide();
-        }
-        catch (NullPointerException e){}
-
         setContentView(R.layout.activity_tobook_card);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         // DB
         db = FirebaseFirestore.getInstance();
@@ -92,8 +87,7 @@ public class CardToBookActivity extends AppCompatActivity {
 
         final double[] coordinates = getCoordinates(parkAddress);
 
-        TextView parkLabel = (TextView) findViewById(R.id.idParkName);
-        parkLabel.setText(city + "-" + parkName);
+        getSupportActionBar().setTitle(city + " - " + parkName);
 
         mapView = (MapView) findViewById(R.id.idMapView);
 

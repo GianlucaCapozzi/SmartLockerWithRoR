@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,6 +27,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
 
 
 public class SignupActivity extends AppCompatActivity {
@@ -161,7 +165,6 @@ public class SignupActivity extends AppCompatActivity {
                 String responseString = json.getString("response");
                 Log.d("RESPONSE", responseString);
                 if (responseString.equals("success")) {
-                    //Log.d("RESPONSE", "AOOOOOOOOOOETER");
                     onSignupSuccess();
                 } else {
                     Log.d("ERR", responseString);
@@ -176,6 +179,10 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void onSignupSuccess() {
+
+        //websocket
+        //startChangeEmailWS();
+
         _signupButton.setEnabled(true);
         setResult(RESULT_OK, null);
 
@@ -184,6 +191,70 @@ public class SignupActivity extends AppCompatActivity {
         i.putExtra("email", _emailText.getText().toString());
 
         startActivity(i);
+    }
+
+
+    private void startChangeEmailWS() {
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(MainActivity.urlWS + "/getoken/" + _emailText.getText().toString())
+                .build();
+        TokenWebSocketListener listener = new TokenWebSocketListener();
+        WebSocket ws = client.newWebSocket(request, listener);
+        client.dispatcher().executorService().shutdown();
+
+    }
+
+    private final class TokenWebSocketListener extends WebSocketListener {
+
+        private static final int NORMAL_CLOSURE_STATUS = 1000;
+
+        @Override
+        public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
+            super.onOpen(webSocket, response);
+
+            JSONObject regForm = new JSONObject();
+
+            try {
+                regForm.put("hello", "hello there");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            webSocket.send(regForm.toString());
+
+        }
+
+        @Override
+        public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+            super.onClosed(webSocket, code, reason);
+        }
+
+        @Override
+        public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+            super.onClosing(webSocket, code, reason);
+            webSocket.close(NORMAL_CLOSURE_STATUS, null);
+            webSocket.cancel();
+        }
+
+        @Override
+        public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @org.jetbrains.annotations.Nullable Response response) {
+            super.onFailure(webSocket, t, response);
+        }
+
+        @Override
+        public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+            super.onMessage(webSocket, text);
+            // HANDLE TOKEN
+        }
+
+        @Override
+        public void onMessage(@NotNull WebSocket webSocket, @NotNull ByteString bytes) {
+            super.onMessage(webSocket, bytes);
+        }
+
     }
 
     private void onSignupFailed() {

@@ -112,7 +112,7 @@ public class PrevBookingsFragment extends Fragment {
             protected void onBindViewHolder(@NonNull final BookingDisabledHolder bookingDisabledHolder, int i, @NonNull final Booking booking) {
                 getLockInfo(booking.getCity(), booking.getPark(), booking.getLockHash());
                 //getCity(booking.getCity());
-                bookingDisabledHolder.parkBD.setText(booking.getCity() + "-" + booking.getPark());
+                bookingDisabledHolder.parkBD.setText(booking.getCity() + " - " + booking.getPark());
                 bookingDisabledHolder.dateBD.setText(booking.getDate());
                 bookingDisabledHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override

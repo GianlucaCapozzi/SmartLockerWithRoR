@@ -38,7 +38,10 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     static String url = "https://smart-locker-macc.herokuapp.com";
+    static String urlWS = "wss://smart-locker-macc.herokuapp.com";
+
     private static final String PREFS_NAME = "SmartLockSettings";
+
 
     private String user;
     private String email;
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
                 int id = item.getItemId();
                 switch (id) {
                     case R.id.homeDrw:
+                        getSupportActionBar().setTitle("Booking");
                         openFragment(HomeFragment.newInstance());
                         bottomNavigation.setVisibility(View.VISIBLE);
                         dl.closeDrawers();

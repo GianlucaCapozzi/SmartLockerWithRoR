@@ -125,7 +125,7 @@ public class HomeFragment extends Fragment {
                 Log.d(TAG, booking.getPark());
                 Log.d(TAG, booking.getLockHash());
                 getLockInfo(booking.getCity(), booking.getPark(), booking.getLockHash());
-                bookingHolder.parkB.setText(booking.getPark());
+                bookingHolder.parkB.setText(booking.getCity() + " - " + booking.getPark());
                 bookingHolder.dateB.setText(booking.getDate());
                 bookingHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override

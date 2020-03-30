@@ -3,6 +3,7 @@ package com.iot.smartlockerapp;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -53,8 +54,9 @@ public class CardBookingActivity extends AppCompatActivity {
     private Button leave;
     private Button delete;
     private Button findPark;
+    private Button startTrain;
+    private Button stopTrain;
 
-    private TextView parkNameTV;
     private TextView dateTV;
     private TextView lockNameTV;
 
@@ -75,19 +77,15 @@ public class CardBookingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try
-        {
-            this.getSupportActionBar().hide();
-        }
-        catch (NullPointerException e){}
-
 
         try {
+
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
             db = FirebaseFirestore.getInstance();
 
             setContentView(R.layout.activity_booking_card);
 
-            parkNameTV = (TextView) findViewById(R.id.idParkTV);
             dateTV = (TextView) findViewById(R.id.idDateTV);
             lockNameTV = (TextView) findViewById(R.id.idLockName);
 
@@ -109,14 +107,20 @@ public class CardBookingActivity extends AppCompatActivity {
             String lockN = lockName.substring(0, lockName.length()-1);
             String lockID = lockName.substring(lockName.length()-1);
 
-            parkNameTV.setText(city + " - " + parkName);
-            dateTV.setText(date);
-            lockNameTV.setText(lockN + " " + lockID);
+            getSupportActionBar().setTitle(city + " - " + parkName);
+
+            String styledDateText = "<strong> Date: </strong>" + date;
+            dateTV.setText(Html.fromHtml(styledDateText, Html.FROM_HTML_MODE_LEGACY));
+
+            String styledLockerText = "<strong> Locker: </strong>" + lockN + " " + lockID;
+            lockNameTV.setText(Html.fromHtml(styledLockerText, Html.FROM_HTML_MODE_LEGACY));
 
             authenticate = (Button) findViewById(R.id.idAuthButt);
             leave = (Button) findViewById(R.id.idLeaveBtn);
             delete = (Button) findViewById(R.id.idDeleteBtn);
             findPark = (Button) findViewById(R.id.idFindParkBtn);
+            startTrain = (Button) findViewById(R.id.idStartTrainBtn);
+            stopTrain = (Button) findViewById(R.id.idStopTrainBtn);
 
             findPark.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -144,9 +148,12 @@ public class CardBookingActivity extends AppCompatActivity {
 
             boolean diff = getDifference(currFormDate, bookDate);
 
+            stopTrain.setEnabled(false);
+
             if(diff) {
                 leave.setEnabled(false);
                 authenticate.setEnabled(false);
+                startTrain.setEnabled(false);
             }
 
             leave.setOnClickListener(new View.OnClickListener() {
