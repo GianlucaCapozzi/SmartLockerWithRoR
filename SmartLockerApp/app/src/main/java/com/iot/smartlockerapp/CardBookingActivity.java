@@ -150,6 +150,9 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
             sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
             accel = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
 
+            Log.d(TAG, sensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR).toString());
+
+
             findPark.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -182,6 +185,17 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
                 leave.setEnabled(false);
                 authenticate.setEnabled(false);
                 startTrain.setEnabled(false);
+                stopTrain.setEnabled(false);
+                delete.setEnabled(true);
+                findPark.setEnabled(true);
+            }
+            else {
+                leave.setEnabled(true);
+                authenticate.setEnabled(true);
+                startTrain.setEnabled(true);
+                stopTrain.setEnabled(false);
+                delete.setEnabled(false);
+                findPark.setEnabled(true);
             }
 
             leave.setOnClickListener(new View.OnClickListener() {
@@ -269,6 +283,7 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
                 public void onClick(View v) {
                     stopTrain.setEnabled(true);
                     startTrain.setEnabled(false);
+                    leave.setEnabled(false);
                     numSteps = 0;
                     sensorManager.registerListener(CardBookingActivity.this, accel, SensorManager.SENSOR_DELAY_FASTEST);
                 }
@@ -279,6 +294,7 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
                 public void onClick(View v) {
                     startTrain.setEnabled(true);
                     stopTrain.setEnabled(false);
+                    leave.setEnabled(true);
                     sensorManager.unregisterListener(CardBookingActivity.this);
                     km = (float)(numSteps*pace)/(float)100000;
                     Log.d(TAG, Float.toString(km));

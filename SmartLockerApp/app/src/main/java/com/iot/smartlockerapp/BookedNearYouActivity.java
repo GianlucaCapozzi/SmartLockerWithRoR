@@ -78,12 +78,11 @@ public class BookedNearYouActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try
-        {
-            this.getSupportActionBar().hide();
-        }
-        catch (NullPointerException e){}
+
         setContentView(R.layout.activity_nearyou);
+
+        getSupportActionBar().setTitle("Choose Hour");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         parkName = getIntent().getStringExtra("parkName");
         user = getIntent().getStringExtra("user");
@@ -98,6 +97,16 @@ public class BookedNearYouActivity extends AppCompatActivity {
         // Near bookings
 
         nearYou = (List<Booking>) getIntent().getSerializableExtra("nearYou");
+
+        if(nearYou.isEmpty()) {
+            TextView noFriends = findViewById(R.id.noFriendsTV);
+            noFriends.setText("No friends near you :(");
+        }
+        else {
+            TextView nearYouLbl = findViewById(R.id.nearYouTV);
+            nearYouLbl.setText("Friends near you:");
+        }
+
         Log.d(TAG, "Size near you: " + nearYou.size());
 
         bookedNearAdapter = new BookedNearYouAdapter(nearYou, user);
