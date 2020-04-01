@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                 String responseString = json.getString("response");
                 Log.d(TAG + " logout", responseString);
                 if (responseString.equals("success")) {
-                    getSharedPreferences(PREFS_NAME, 0).edit().clear().commit();
+                    getSharedPreferences(PREFS_NAME, 0).edit().clear().apply();
                     Intent i = new Intent(getApplicationContext(), LoginActivity.class);
                     startActivity(i);
                 } else {

@@ -76,7 +76,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
     private String gender;
     private String imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
 
-    private String base64Credentials;
+    private String token;
     private String email;
 
     private final static int IS_SIGNUP = 2;
@@ -178,7 +178,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         _signupButton.setEnabled(false);
 
-        base64Credentials = getIntent().getStringExtra("token");
+        token = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString("auth_token", null);
         email = getIntent().getStringExtra("email");
 
         Log.d(TAG, email);
@@ -187,7 +187,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
             imageUri = "R.drawable.com_facebook_profile_picture_blank_portrait";
         }
 
-        Log.d(TAG, base64Credentials);
+        Log.d(TAG, token);
         Log.d(TAG, imageUri);
 
         int selectedG = _radioGroup.getCheckedRadioButtonId();
@@ -267,9 +267,9 @@ public class CompleteLoginActivity extends AppCompatActivity {
             Log.d(TAG, "RESPONSE" + resp);
             try {
                 JSONObject json = new JSONObject(resp);
-                String loginResponseString = json.getString("response");
-                Log.d(TAG, "Response from the server: " + loginResponseString);
-                if(loginResponseString.equals("success")) {
+                String responseString = json.getString("response");
+                Log.d(TAG, "Response from the server: " + responseString);
+                if(responseString.equals("success")) {
                     Log.d(TAG, "success");
                     onCompleteSignSuccess();
                 }

@@ -35,6 +35,7 @@ import okio.ByteString;
 public class SignupActivity extends AppCompatActivity {
 
     private static final String TAG = "SignupActivity";
+    private static final String PREFS_NAME = "SmartLockSettings";
 
     //@BindView(R.id.input_name) EditText _nameText;
     @BindView(R.id.input_email) EditText _emailText;
@@ -180,17 +181,12 @@ public class SignupActivity extends AppCompatActivity {
 
     private void onSignupSuccess() {
 
-        //websocket
-        //startChangeEmailWS();
-
         _signupButton.setEnabled(true);
         setResult(RESULT_OK, null);
 
-        Intent i = new Intent(this, CompleteLoginActivity.class);
-        i.putExtra("token", base64Credentials);
-        i.putExtra("email", _emailText.getText().toString());
+        //websocket
+        startChangeEmailWS();
 
-        startActivity(i);
     }
 
 
@@ -214,17 +210,6 @@ public class SignupActivity extends AppCompatActivity {
         @Override
         public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
             super.onOpen(webSocket, response);
-
-            JSONObject regForm = new JSONObject();
-
-            try {
-                regForm.put("hello", "hello there");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            webSocket.send(regForm.toString());
-
         }
 
         @Override
@@ -242,12 +227,40 @@ public class SignupActivity extends AppCompatActivity {
         @Override
         public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @org.jetbrains.annotations.Nullable Response response) {
             super.onFailure(webSocket, t, response);
+            Log.d(TAG, " WS_ERROR" + t.getMessage());
+            webSocket.send("Error in receiving token");
         }
 
         @Override
         public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
             super.onMessage(webSocket, text);
-            // HANDLE TOKEN
+
+            try {
+                JSONObject json = new JSONObject(text);
+                String responseString = json.getString("response");
+                Log.d(TAG + " WS", responseString);
+                if (responseString.equals("success")) {
+                    Log.d(TAG + " WS", responseString);
+                    getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                            .edit()
+                            .putString("auth_token", json.getString("auth_token"))
+                            .apply();
+                    Intent i = new Intent(getApplicationContext(), CompleteLoginActivity.class);
+                    i.putExtra("email", _emailText.getText().toString());
+                    startActivity(i);
+                    webSocket.send("Token received");
+                    webSocket.close(NORMAL_CLOSURE_STATUS, null);
+                    webSocket.cancel();
+                } else {
+                    Log.d(TAG + " WS", responseString);
+                    Log.d(TAG + " WS", "onResponse failed");
+                    webSocket.send("Error in computing token");
+                    onSignupFailed();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         }
 
         @Override
