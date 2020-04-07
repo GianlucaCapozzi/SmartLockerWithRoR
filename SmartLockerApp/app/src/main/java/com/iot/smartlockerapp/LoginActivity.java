@@ -84,6 +84,11 @@ public class LoginActivity extends AppCompatActivity {
                 getSharedPreferences(PREFS_NAME, 0).edit().remove("password").apply();
             }
             else {
+                String get_email = pref.getString("email", null);
+                _emailText.setText(get_email);
+                _emailText.setFocusable(false);
+                _passwordText.setText("EXAMPLE PASSWORD");
+                _passwordText.setFocusable(false);
                 login();
             }
             getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();

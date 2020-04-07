@@ -2,6 +2,7 @@ package com.iot.smartlockerapp;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -15,6 +16,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -82,6 +85,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
     private final static int IS_SIGNUP = 2;
 
     private final static int RESULT_LOAD_IMAGE = 1;
+    private final static int RESULT_CAMERA = 2;
 
     private static final String PREFS_NAME = "SmartLockSettings";
 
@@ -99,7 +103,41 @@ public class CompleteLoginActivity extends AppCompatActivity {
         _profilePict.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final CharSequence[] options = { "Take Photo", "Choose from Gallery", "Cancel"};
+                AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(v.getContext(), R.style.MyAlertDialog));
+                builder.setTitle("Choose your profile picture");
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(options[which].equals("Take Photo")) {
+                            if(ActivityCompat.checkSelfPermission(CompleteLoginActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(CompleteLoginActivity.this, new String[]{Manifest.permission.CAMERA}, RESULT_CAMERA);
+                            }
+                            else {
+                                Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
+                                startActivityForResult(i, RESULT_CAMERA);
+                            }
+                        }
+                        else if(options[which].equals("Choose from Gallery")) {
+                            if (ActivityCompat.checkSelfPermission(CompleteLoginActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(CompleteLoginActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, RESULT_LOAD_IMAGE);
+                            }
+                            else {
+                                Intent i = new Intent(Intent.ACTION_PICK,
+                                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+                                startActivityForResult(i, RESULT_LOAD_IMAGE);
+                            }
+                        }
+                        else if(options[which].equals("Cancel")) {
+                            dialog.dismiss();
+                        }
+                    }
+                });
+                builder.show();
+
+                /*
                 if (ActivityCompat.checkSelfPermission(CompleteLoginActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(CompleteLoginActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, RESULT_LOAD_IMAGE);
                 }
@@ -109,6 +147,8 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
                     startActivityForResult(i, RESULT_LOAD_IMAGE);
                 }
+
+                 */
             }
         });
 
@@ -132,6 +172,12 @@ public class CompleteLoginActivity extends AppCompatActivity {
                     startActivityForResult(i, RESULT_LOAD_IMAGE);
                 }
                 break;
+            case RESULT_CAMERA:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                    startActivityForResult(i, RESULT_CAMERA);
+                }
         }
     }
 
@@ -141,7 +187,6 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
-
             try {
                 ParcelFileDescriptor parcelFileDescriptor =
                         getContentResolver().openFileDescriptor(selectedImage, "r");
@@ -158,7 +203,15 @@ public class CompleteLoginActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+        }
+        if(requestCode == RESULT_CAMERA && resultCode == RESULT_OK) {
+            Bitmap image = (Bitmap) data.getExtras().get("data");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] b = baos.toByteArray();
+            imageUri = Base64.encodeToString(b, Base64.DEFAULT);
+            Log.d(TAG, imageUri);
+            _profilePict.setImageBitmap(image);
         }
 
     }
