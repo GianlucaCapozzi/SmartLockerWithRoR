@@ -1,10 +1,13 @@
 package com.iot.smartlockerapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Base64;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +16,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+
+import org.json.JSONObject;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -23,10 +29,14 @@ public class SettingsFragment extends Fragment {
 
     private static final String PREFS_NAME = "SmartLockSettings";
 
+    private String email;
+    private String name;
+
     private TextView usernameTV;
     private TextView emailTV;
     private TextView passTV;
     private TextView profileTV;
+    private TextView deleteTV;
 
     public SettingsFragment() {
     }
@@ -47,8 +57,8 @@ public class SettingsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_settings, container, false);
 
         SharedPreferences pref = this.getActivity().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String name = pref.getString("user", null);
-        String email = pref.getString("email", null);
+        name = pref.getString("user", null);
+        email = pref.getString("email", null);
 
         Log.d(TAG, name + " " + email);
 
@@ -103,6 +113,20 @@ public class SettingsFragment extends Fragment {
             public void onClick(View w) {
                 //Toast.makeText(w.getContext(), "Clicked on personal settings", Toast.LENGTH_LONG).show();
                 Intent i = new Intent(w.getContext(), ChangeProfileActivity.class);
+                startActivity(i);
+            }
+        });
+
+        deleteTV = v.findViewById(R.id.deleteAccount);
+        String styledDeleteText = "<strong> Delete Account </strong>"
+                + "<br />Delete permanently your account";
+        deleteTV.setText(Html.fromHtml(styledDeleteText, Html.FROM_HTML_MODE_LEGACY));
+
+        deleteTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText(v.getContext(), "Clicked on delete account", Toast.LENGTH_LONG).show();
+                Intent i = new Intent(v.getContext(), DeleteActivity.class);
                 startActivity(i);
             }
         });

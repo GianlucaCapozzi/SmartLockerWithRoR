@@ -1,35 +1,28 @@
 package com.iot.smartlockerapp;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,6 +45,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.FragmentActivity;
 
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+
 public class CardBookingActivity extends AppCompatActivity implements SensorEventListener{
 
     private Button authenticate;
@@ -70,6 +70,8 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
 
     private int pace;
     private float km;
+
+    private float ratingValue = -1;
 
     private String city;
     private String lockName;
@@ -347,58 +349,101 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
                 });
     }
 
-    private void leaveLocker(String bookID, String city, String parkName, String lockHash){
-        Map<String, Object> lock = new HashMap<>();
-        if(lockState == true) {
-            lock.put("open", false);
-        }
-        lock.put("available", true);
-        lock.put("user", "");
-        lockState = false;
+    private void leaveLocker(final String bookID, final String city, final String parkName, final String lockHash){
 
-        String cityPark = city + parkName;
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(CardBookingActivity.this, R.style.MyAlertDialog));
+        View layout = null;
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        layout = inflater.inflate(R.layout.rating, null);
+        final RatingBar ratingBar = layout.findViewById(R.id.ratingBar);
+        builder.setTitle("Rate your experience!");
+        builder.setMessage("Thank you for rating your experience, it will help us to improve the system!");
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ratingValue = ratingBar.getRating();
 
-        db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
-                .set(lock, SetOptions.merge())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
-                    }
-                });
-        DateFormat dateFormat = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
-        Date currentTime = Calendar.getInstance().getTime();
-        String leaveTime = dateFormat.format(currentTime);
-        Map<String, Object> booking = new HashMap<>();
-        booking.put("active", false);
-        booking.put("leave", leaveTime);
-        booking.put("km", Float.toString(km));
 
-        db.collection("bookings").document(Integer.toString(bookID.hashCode()))
-                .set(booking, SetOptions.merge())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
+                Map<String, Object> lock = new HashMap<>();
+                if(lockState == true) {
+                    lock.put("open", false);
+                }
+                lock.put("available", true);
+                lock.put("user", "");
+                lockState = false;
 
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
-                    }
-                });
-        Intent i = new Intent(this, MainActivity.class);
-        i.putExtra("email", user);
-        i.putExtra("user", username);
-        finish();
+                String cityPark = city + parkName;
+
+                db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
+                        .set(lock, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
+                DateFormat dateFormat = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
+                Date currentTime = Calendar.getInstance().getTime();
+                String leaveTime = dateFormat.format(currentTime);
+                Map<String, Object> booking = new HashMap<>();
+                booking.put("active", false);
+                booking.put("leave", leaveTime);
+                booking.put("rating", Float.toString(ratingValue));
+                booking.put("km", Float.toString(km));
+
+                db.collection("bookings").document(Integer.toString(bookID.hashCode()))
+                        .set(booking, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
+
+                JSONObject ratingForm = new JSONObject();
+
+                try {
+                    ratingForm.put("cityHash", city.hashCode());
+                    ratingForm.put("parkHash", cityPark.hashCode());
+                    ratingForm.put("rating", ratingValue);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                RequestBody body = RequestBody.create(ratingForm.toString(), MediaType.parse("application/json; charset=utf-8"));
+                postRatingRequest(MainActivity.url+"/updaterating", body);
+
+                finish();
+            }
+        });
+        builder.setNegativeButton("No, thanks", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setCancelable(false);
+        builder.setView(layout);
+        builder.show();
+
+    }
+
+    private void postRatingRequest(String postUrl, RequestBody postBody) {
+        HttpRatingPostAsyncTask okHttpAsync = new HttpRatingPostAsyncTask(postBody);
+        okHttpAsync.execute(postUrl);
     }
 
     private void deleteBooking(String bookID, String parkName, String city, String lockHash){
@@ -456,6 +501,40 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    private class HttpRatingPostAsyncTask extends AsyncTask<String, Void, byte[]> {
+
+        RequestBody postBody;
+        private String resp;
+
+        private HttpRatingPostAsyncTask(RequestBody postBody) {
+            this.postBody = postBody;
+            resp = "";
+        }
+
+        @Override
+        protected byte[] doInBackground(String... strings) {
+            Log.d(TAG, "RATING request done");
+            String postUrl = strings[0];
+
+            OkHttpClient client = new OkHttpClient();
+
+            final Request request = new Request.Builder()
+                    .url(postUrl)
+                    .post(postBody)
+                    .header("Content-Type", "application/json")
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                resp = response.body().string();
+                Log.d(TAG, resp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 
 }

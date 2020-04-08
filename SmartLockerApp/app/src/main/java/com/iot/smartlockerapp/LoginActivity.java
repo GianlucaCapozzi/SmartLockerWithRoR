@@ -94,7 +94,7 @@ public class LoginActivity extends AppCompatActivity {
             getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
         }
 
-        else if(fromActivity == 2 || fromActivity == 3) {
+        else if(fromActivity == 2 || fromActivity == 3 || fromActivity == 4) {
             getSharedPreferences(PREFS_NAME, 0).edit().remove("user").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("email").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("gender").apply();
