@@ -12,6 +12,7 @@ class AuthenticationController < ApplicationController
                 email: user_info.email,
                 name: user_info.name,
                 surname: user_info.surname,
+                gender: user_info.gender,
                 photo: user_info.img
                 }, status: :ok
         else
