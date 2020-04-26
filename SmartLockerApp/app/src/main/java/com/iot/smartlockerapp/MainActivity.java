@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
@@ -38,7 +40,6 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     static String url = "https://smart-locker-macc.herokuapp.com";
-    static String urlWS = "wss://smart-locker-macc.herokuapp.com";
 
     private static final String PREFS_NAME = "SmartLockSettings";
 
@@ -168,6 +169,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logout() {
+
+        //CHECK FOR FACEBOOK LOGOUT
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if(accessToken != null && !accessToken.isExpired()) {
+            Log.d(TAG, "In FACEBOOK LOGOUT");
+            LoginManager.getInstance().logOut();
+        }
 
         // SEND TOKEN TO SERVER FOR BLACKLIST
         String postUrl = url + "/logout";

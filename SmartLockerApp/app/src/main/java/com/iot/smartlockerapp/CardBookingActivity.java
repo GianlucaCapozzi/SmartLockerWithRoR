@@ -155,6 +155,7 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
             Log.d(TAG, sensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR).toString());
 
 
+
             findPark.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

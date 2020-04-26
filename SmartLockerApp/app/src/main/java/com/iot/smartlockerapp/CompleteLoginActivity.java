@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -45,6 +46,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import butterknife.BindView;
@@ -82,6 +85,8 @@ public class CompleteLoginActivity extends AppCompatActivity {
     private String token;
     private String email;
 
+    private int setFromAct;
+
     private final static int IS_SIGNUP = 2;
 
     private final static int RESULT_LOAD_IMAGE = 1;
@@ -99,6 +104,36 @@ public class CompleteLoginActivity extends AppCompatActivity {
         catch (NullPointerException e){}
         setContentView(R.layout.activity_complogin);
         ButterKnife.bind(this);
+
+        int fromAct = getIntent().getIntExtra("fromActivity", 0);
+        if(fromAct == 1) {
+            // FACEBOOK OAUTH LOGIN
+
+            setFromAct = 1;
+
+            imageUri = getIntent().getStringExtra("image");
+            byte[] decodedString = Base64.decode(imageUri, Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            _profilePict.setImageBitmap(decodedByte);
+
+            List<String> usname = new LinkedList(Arrays.asList(getIntent().getStringExtra("username").trim().split("\\s+")));
+            name = usname.get(0);
+            usname.remove(0);
+            surname = String.join(" ", usname);
+            _nameText.setText(name);
+            _surnText.setText(surname);
+
+        }
+
+        else {
+            setFromAct = IS_SIGNUP;
+        }
+
+        SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        token = pref.getString("auth_token", null);
+        Log.d(TAG, token);
+
+        email = getIntent().getStringExtra("email");
 
         _profilePict.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,18 +172,6 @@ public class CompleteLoginActivity extends AppCompatActivity {
                 });
                 builder.show();
 
-                /*
-                if (ActivityCompat.checkSelfPermission(CompleteLoginActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(CompleteLoginActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, RESULT_LOAD_IMAGE);
-                }
-                else {
-                    Intent i = new Intent(Intent.ACTION_PICK,
-                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-                    startActivityForResult(i, RESULT_LOAD_IMAGE);
-                }
-
-                 */
             }
         });
 
@@ -216,6 +239,10 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+    }
+
     public void signup() {
         Log.d(TAG, "Signup");
 
@@ -230,9 +257,6 @@ public class CompleteLoginActivity extends AppCompatActivity {
         }
 
         _signupButton.setEnabled(false);
-
-        token = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString("auth_token", null);
-        email = getIntent().getStringExtra("email");
 
         Log.d(TAG, email);
 
@@ -350,7 +374,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
                 .putString("email", email)
                 .putString("gender", gender)
                 .putString("image", imageUri)
-                .putInt("fromActivity", IS_SIGNUP)
+                .putInt("fromActivity", setFromAct)
                 .apply();
 
         startActivity(i);

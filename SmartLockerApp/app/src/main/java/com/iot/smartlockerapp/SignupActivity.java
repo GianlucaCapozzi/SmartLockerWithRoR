@@ -1,10 +1,12 @@
 package com.iot.smartlockerapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +19,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import butterknife.BindView;
@@ -36,6 +39,7 @@ public class SignupActivity extends AppCompatActivity {
 
     private static final String TAG = "SignupActivity";
     private static final String PREFS_NAME = "SmartLockSettings";
+    private static final int IS_SIGNUP = 0;
 
     //@BindView(R.id.input_name) EditText _nameText;
     @BindView(R.id.input_email) EditText _emailText;
@@ -45,6 +49,7 @@ public class SignupActivity extends AppCompatActivity {
     @BindView(R.id.link_login) TextView _loginLink;
 
     private String base64Credentials;
+    private String token;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,9 +76,12 @@ public class SignupActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
                 startActivity(intent);
                 finish();
-                //overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
     }
 
     public void signup() {
@@ -166,6 +174,8 @@ public class SignupActivity extends AppCompatActivity {
                 String responseString = json.getString("response");
                 Log.d("RESPONSE", responseString);
                 if (responseString.equals("success")) {
+                    token = json.getString("auth_token");
+                    Log.d(TAG, "TOKEN: " + token);
                     onSignupSuccess();
                 } else {
                     Log.d("ERR", responseString);
@@ -182,92 +192,27 @@ public class SignupActivity extends AppCompatActivity {
     private void onSignupSuccess() {
 
         _signupButton.setEnabled(true);
-        setResult(RESULT_OK, null);
+        //setResult(RESULT_OK, null);
 
-        //websocket
-        startChangeEmailWS();
-
-    }
-
-
-    private void startChangeEmailWS() {
-
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(MainActivity.urlWS + "/getoken/" + _emailText.getText().toString())
-                .build();
-        TokenWebSocketListener listener = new TokenWebSocketListener();
-        WebSocket ws = client.newWebSocket(request, listener);
-        client.dispatcher().executorService().shutdown();
-
-    }
-
-    private final class TokenWebSocketListener extends WebSocketListener {
-
-        private static final int NORMAL_CLOSURE_STATUS = 1000;
-
-        @Override
-        public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
-            super.onOpen(webSocket, response);
-        }
-
-        @Override
-        public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-            super.onClosed(webSocket, code, reason);
-        }
-
-        @Override
-        public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-            super.onClosing(webSocket, code, reason);
-            webSocket.close(NORMAL_CLOSURE_STATUS, null);
-            webSocket.cancel();
-        }
-
-        @Override
-        public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @org.jetbrains.annotations.Nullable Response response) {
-            super.onFailure(webSocket, t, response);
-            Log.d(TAG, " WS_ERROR" + t.getMessage());
-            webSocket.send("Error in receiving token");
-        }
-
-        @Override
-        public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
-            super.onMessage(webSocket, text);
-
-            try {
-                JSONObject json = new JSONObject(text);
-                String responseString = json.getString("response");
-                Log.d(TAG + " WS", responseString);
-                if (responseString.equals("success")) {
-                    Log.d(TAG + " WS", responseString);
-                    getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                            .edit()
-                            .putString("auth_token", json.getString("auth_token"))
-                            .apply();
-                    Intent i = new Intent(getApplicationContext(), CompleteLoginActivity.class);
-                    i.putExtra("email", _emailText.getText().toString());
-                    startActivity(i);
-                    webSocket.send("Token received");
-                    webSocket.close(NORMAL_CLOSURE_STATUS, null);
-                    webSocket.cancel();
-                } else {
-                    Log.d(TAG + " WS", responseString);
-                    Log.d(TAG + " WS", "onResponse failed");
-                    webSocket.send("Error in computing token");
-                    onSignupFailed();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        @Override
-        public void onMessage(@NotNull WebSocket webSocket, @NotNull ByteString bytes) {
-            super.onMessage(webSocket, bytes);
-        }
-
+        AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(SignupActivity.this, R.style.MyAlertDialog)).create();
+        alertDialog.setTitle("Check");
+        alertDialog.setMessage("Check your email and confirm by pressing on the link!");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                                .edit()
+                                .putString("auth_token", token)
+                                .apply();
+                        Intent i = new Intent(getApplicationContext(), CompleteLoginActivity.class);
+                        i.putExtra("fromActivity", IS_SIGNUP);
+                        i.putExtra("email", _emailText.getText().toString());
+                        startActivity(i);
+                    }
+                });
+        alertDialog.show();
     }
 
     private void onSignupFailed() {
