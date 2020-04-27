@@ -16,7 +16,7 @@ class DeleteAccount
 
     def deleteaccount
         check = AuthorizeApiRequest.call(headers)
-        if check.success? and check.result.authenticate(password)
+        if check.success? and (not check.result.oauth) and check.result.authenticate(password)
             user = check.result
             
             # Delete all tokens correlated to candidate user

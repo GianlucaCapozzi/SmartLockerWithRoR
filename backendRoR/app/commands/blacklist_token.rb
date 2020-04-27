@@ -15,7 +15,7 @@ class BlacklistToken
 
     def blacklist
         check = AuthorizeApiRequest.call(headers)
-        BlacklistedToken.create(token: http_auth_header, user: check.result, expire_at: decoded_auth_token[:exp]) if check.success?
+        BlacklistedToken.create(token: http_auth_header, user_id: check.result, expire_at: decoded_auth_token[:exp]) if check.success?
     end
 
     def decoded_auth_token

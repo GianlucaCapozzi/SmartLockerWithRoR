@@ -6,7 +6,8 @@ class RegistrationController < ActionController::API
         if command.success?
             render json: { 
                 response: "success",
-                result: command.result
+                result: "User registered",
+                auth_token: command.result
                 }, status: :ok
         else
             render json: { 
@@ -15,7 +16,7 @@ class RegistrationController < ActionController::API
                 }, status: :conflict
         end
     end
-
+    
     def confirm_email
         user = User.find_by_confirm_token(params[:id])
         if user
@@ -38,5 +39,7 @@ class RegistrationController < ActionController::API
         user.email_confirmed = true
         user.confirm_token = nil
         user.save
+
+        BlacklistedToken.where(user_id: user.id).first.delete
     end
 end
