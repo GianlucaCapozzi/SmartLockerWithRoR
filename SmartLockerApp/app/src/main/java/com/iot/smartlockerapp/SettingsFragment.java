@@ -19,6 +19,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.facebook.AccessToken;
+
 import org.json.JSONObject;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -60,6 +62,8 @@ public class SettingsFragment extends Fragment {
         name = pref.getString("user", null);
         email = pref.getString("email", null);
 
+        final AccessToken accessToken = AccessToken.getCurrentAccessToken();
+
         Log.d(TAG, name + " " + email);
 
         usernameTV = v.findViewById(R.id.usernameSettings);
@@ -83,9 +87,23 @@ public class SettingsFragment extends Fragment {
         emailTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View w) {
-                //Toast.makeText(w.getContext(), "Clicked on email settings", Toast.LENGTH_LONG).show();
-                Intent i = new Intent(w.getContext(), ChangeEmailActivity.class);
-                startActivity(i);
+                if(accessToken != null) {
+                    AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.MyAlertDialog)).create();
+                    alertDialog.setTitle("SETTINGS INFORMATION");
+                    alertDialog.setMessage("Not possibile to change email because of Facebook login!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+                }
+                else {
+                    Intent i = new Intent(w.getContext(), ChangeEmailActivity.class);
+                    startActivity(i);
+                }
             }
         });
 
@@ -97,9 +115,23 @@ public class SettingsFragment extends Fragment {
         passTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View w) {
-                //Toast.makeText(w.getContext(), "Clicked on password settings", Toast.LENGTH_LONG).show();
-                Intent i = new Intent(w.getContext(), ChangePasswordActivity.class);
-                startActivity(i);
+                if(accessToken != null) {
+                    AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.MyAlertDialog)).create();
+                    alertDialog.setTitle("SETTINGS INFORMATION");
+                    alertDialog.setMessage("Not possible to change password because of Facebook login!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+                }
+                else {
+                    Intent i = new Intent(w.getContext(), ChangePasswordActivity.class);
+                    startActivity(i);
+                }
             }
         });
 

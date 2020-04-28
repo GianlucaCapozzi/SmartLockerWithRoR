@@ -15,6 +15,7 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,7 +24,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -61,6 +65,8 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
     private Button startTrain;
     private Button stopTrain;
 
+    private ImageView weatherIV;
+    private TextView weatherTV;
     private TextView dateTV;
     private TextView lockNameTV;
 
@@ -78,7 +84,12 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
     private String lockHash;
     private String parkName;
     private String date;
+    private Date bookDate;
     private boolean lockState;
+
+    private final static String openAPI = "06a255a9b7dbe88bf33ec3e5ddb34c18";
+    private final static String WeatherURL = "http://api.openweathermap.org/data/2.5/forecast?q=";
+    private final static String WeatherImageUrl = "http://openweathermap.org/img/wn/";
 
     private final static String TAG = "FPrintAct";
 
@@ -105,6 +116,8 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
 
             dateTV = (TextView) findViewById(R.id.idDateTV);
             lockNameTV = (TextView) findViewById(R.id.idLockName);
+            weatherIV = (ImageView) findViewById(R.id.idWeatherIcon);
+            weatherTV = (TextView) findViewById(R.id.idWeatherLbl);
 
             username = getIntent().getStringExtra("user");
             user = getIntent().getStringExtra("email");
@@ -118,7 +131,6 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
             }
 
             Log.d(TAG, user);
-
 
             city = getIntent().getStringExtra("city");
             parkName = getIntent().getStringExtra("park");
@@ -154,7 +166,21 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
 
             Log.d(TAG, sensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR).toString());
 
+            // Find weather
+            WeatherAPI weatherTask = new WeatherAPI(new WeatherAPI.WeatherResponse() {
+                @Override
+                public void processFinish(String output) {
+                    //Log.d(TAG, output);
+                    String[] forecast = processWeather(output);
+                    if (!forecast[0].equals("No available forecasts")) {
+                        String imageUri = WeatherImageUrl + forecast[1] + "@2x.png";
+                        Picasso.get().load(imageUri).into(weatherIV);
+                    }
+                    weatherTV.setText(forecast[0]);
+                }
+            });
 
+            weatherTask.execute(WeatherURL+city+",it&appid="+openAPI);
 
             findPark.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -178,13 +204,13 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
             Log.d(TAG, dateFormatted);
 
             Date currFormDate = dateFormat.parse(dateFormatted);
-            Date bookDate = dateFormat.parse(date);
+            bookDate = dateFormat.parse(date);
 
-            boolean diff = getDifference(currFormDate, bookDate);
+            long diff = getDifference(currFormDate, bookDate);
 
             stopTrain.setEnabled(false);
 
-            if(diff) {
+            if(diff < 0) {
                 leave.setEnabled(false);
                 authenticate.setEnabled(false);
                 startTrain.setEnabled(false);
@@ -310,15 +336,13 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
 
     }
 
-    private boolean getDifference(Date leave, Date booking){
+    private long getDifference(Date leave, Date booking){
         long difference = leave.getTime() - booking.getTime();
 
-        Log.d(TAG, "difference : " + difference);
+        //Log.d(TAG, "difference : " + difference);
 
-        if(difference < 0) {
-            return true;
-        }
-        return false;
+        return difference;
+
     }
 
     private void setLockFull(String city, String parkName, String lockHash){
@@ -536,6 +560,53 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
             }
             return null;
         }
+    }
+
+    private String[] processWeather(String forecast) {
+        String[] forecastWithImage = new String[2];
+        try {
+            JSONObject forecastJson = new JSONObject(forecast);
+            String res = forecastJson.getString("cod");
+            if(res.equals("200")) {
+                JSONArray forecastList = forecastJson.getJSONArray("list");
+                forecastWithImage[0] = "No available forecasts";
+                forecastWithImage[1] = "";
+                long bestDiff = 3;
+                for(int i = 0; i < forecastList.length(); i++) {
+                    JSONObject el = forecastList.getJSONObject(i);
+
+                    String forecastDate = el.getString("dt_txt");
+
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date forecastDateForm = dateFormat.parse(forecastDate);
+
+                    long forecastDiff = getDifference(forecastDateForm, bookDate);
+                    long diffHours = Math.abs(forecastDiff / (60 * 60 * 1000) % 24);
+                    long diffDays = forecastDiff / (24 * 60 * 60 * 1000);
+
+                    if(diffDays == 0) {
+                        if(diffHours < bestDiff) {
+                            Log.d(TAG, el.getString("dt_txt") + " " + diffDays + " " + diffHours);
+                            JSONArray weatherArray = el.getJSONArray("weather");
+                            Log.d(TAG, weatherArray.getJSONObject(0).getString("main"));
+                            forecastWithImage[0] = weatherArray.getJSONObject(0).getString("main");
+                            forecastWithImage[1] = weatherArray.getJSONObject(0).getString("icon");
+                            bestDiff = diffHours;
+                        }
+                    }
+                }
+                return forecastWithImage;
+            }
+            else {
+                Log.d(TAG, "ELSE BRANCH");
+                forecastWithImage[0] = "No available forecasts";
+                forecastWithImage[1] = "";
+                return forecastWithImage;
+            }
+        } catch (JSONException | ParseException e) {
+            e.printStackTrace();
+        }
+        return forecastWithImage;
     }
 
 }

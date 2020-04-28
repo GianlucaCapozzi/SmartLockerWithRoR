@@ -127,12 +127,14 @@ public class LoginActivity extends AppCompatActivity {
                             });
                     alertDialog.show();
                 }
-                String get_email = pref.getString("email", null);
-                _emailText.setText(get_email);
-                _emailText.setFocusable(false);
-                _passwordText.setText("EXAMPLE PASSWORD");
-                _passwordText.setFocusable(false);
-                login();
+                else if(accessToken == null) {
+                    String get_email = pref.getString("email", null);
+                    _emailText.setText(get_email);
+                    _emailText.setFocusable(false);
+                    _passwordText.setText("EXAMPLE PASSWORD");
+                    _passwordText.setFocusable(false);
+                    login();
+                }
             }
             getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
         }
@@ -244,6 +246,8 @@ public class LoginActivity extends AppCompatActivity {
             }
             email = _emailText.getText().toString();
             password = _passwordText.getText().toString();
+
+            Log.d(TAG, email + " " + password);
 
             String credentials = email + ":" + password;
             base64Credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);

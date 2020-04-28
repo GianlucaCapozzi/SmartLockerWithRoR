@@ -32,43 +32,34 @@
         app:layout_constraintTop_toBottomOf="@+id/idDateTV" />
 
     <Button
-        android:id="@+id/idFindParkBtn"
-        android:layout_width="178dp"
-        android:layout_height="51dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="48dp"
-        android:background="@drawable/bg_button"
-        android:text="@string/find_park"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
-
-    <Button
         android:id="@+id/idAuthButt"
         android:layout_width="178dp"
         android:layout_height="51dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="20dp"
         android:background="@drawable/bg_button"
         android:text="@string/authenticate"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/idWeatherIcon" />
 
     <Button
-        android:id="@+id/idLeaveBtn"
-        android:layout_width="178dp"
+        android:id="@+id/idStartTrainBtn"
+        android:layout_width="367dp"
         android:layout_height="51dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="20dp"
         android:background="@drawable/bg_button"
-        android:text="@string/leave_locker"
+        android:text="@string/start_train"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/idAuthButt" />
+        app:layout_constraintTop_toBottomOf="@+id/idLeaveBtn" />
 
     <Button
         android:id="@+id/idDeleteBtn"
         android:layout_width="178dp"
         android:layout_height="51dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="20dp"
         android:background="@drawable/bg_button"
         android:text="@string/delete_booking"
@@ -76,37 +67,72 @@
         app:layout_constraintTop_toBottomOf="@+id/idAuthButt" />
 
     <Button
-        android:id="@+id/idStartTrainBtn"
-        android:layout_width="365dp"
-        android:layout_height="51dp"
-        android:layout_marginTop="48dp"
-        android:background="@drawable/bg_button"
-        android:text="@string/start_train"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.565"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/idLeaveBtn" />
-
-    <Button
         android:id="@+id/idStopTrainBtn"
         android:layout_width="365dp"
         android:layout_height="51dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="20dp"
         android:background="@drawable/bg_button"
         android:text="@string/stop_train"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.485"
+        app:layout_constraintHorizontal_bias="0.543"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/idStartTrainBtn" />
 
+    <Button
+        android:id="@+id/idFindParkBtn"
+        android:layout_width="178dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_button"
+        android:text="@string/find_park"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/idWeatherIcon" />
+
+    <Button
+        android:id="@+id/idLeaveBtn"
+        android:layout_width="178dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_button"
+        android:text="@string/leave_locker"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/idAuthButt" />
+
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/idWeatherIcon"
         android:layout_width="42dp"
         android:layout_height="45dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="48dp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toEndOf="@+id/idWeatherTitle"
         app:layout_constraintTop_toBottomOf="@+id/idLockName"
         app:srcCompat="@android:drawable/ic_notification_clear_all" />
+
+    <TextView
+        android:id="@+id/idWeatherLbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="28dp"
+        android:text=""
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/idWeatherIcon"
+        app:layout_constraintTop_toBottomOf="@+id/idLockName" />
+
+    <TextView
+        android:id="@+id/idWeatherTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="32dp"
+        android:text="Forecast:"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/idLockName" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
