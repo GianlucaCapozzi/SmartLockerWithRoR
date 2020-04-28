@@ -8,6 +8,11 @@ class UserMailer < ActionMailer::Base
         mail(:from => "confirmation@smartlocker.com", :to => @user.email, :subject => "Registration Confirmation", :template_name => "registration_confirmation")
     end
 
+    def registration_oauth(user)
+        @user = user
+        mail(:from => "confirmation@smartlocker.com", :to => @user.email, :subject => "Registration Confirmation", :template_name => "registration_oauth")
+    end
+
     def recovery_password(user, temp_pass)
         @user = user
         @temp_pass = temp_pass

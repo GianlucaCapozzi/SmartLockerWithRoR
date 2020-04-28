@@ -7,21 +7,26 @@ class RegisterUser
     end
 
     def call
-        @user = User.create(email: @email , password: @password , password_confirmation: @password) if signup_check
-        @user = User.find_by_email(@email)
-        create_token(@user)
-        UserMailer.registration_confirmation(@user).deliver
+        if signup_check
+            @user = User.create(email: @email , password: @password , password_confirmation: @password) 
+            @user = User.find_by_email(@email)
+            create_token(@user)
+            token = JsonWebToken::encode(user_id: @user.id)
+            BlacklistedToken.create(token: token, user_id: @user, expire_at: JsonWebToken::decode(token)[:exp])
+            UserMailer.registration_confirmation(@user).deliver
+            return token
+        end
     end
 
     private
 
-    attr_accessor :username, :email, :password
+    attr_accessor :email, :password
 
     def signup_check
         exist_email = User.exists?(email: @email)
 
         if exist_email
-            errors.add :user_registration, 'email'
+            errors.add(:user_registration, 'email')
             return false
         else
             return true

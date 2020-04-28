@@ -48,3 +48,6 @@ gem 'simple_command'
 
 # Email grid
 gem 'sendgrid-ruby'
+
+# Http requests
+gem 'httparty'

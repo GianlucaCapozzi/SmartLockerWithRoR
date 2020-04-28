@@ -22,4 +22,5 @@ class AuthenticationController < ApplicationController
                 }, status: :unauthorized
         end
     end
+
 end

@@ -5,6 +5,8 @@ Rails.application.routes.draw do
   get 'wakeup', to: 'wakeup#wakeup'
 
   # Calls about profile
+  post 'oauth', to: 'oauth#auth_oauth'
+
   post 'login', to: 'authentication#authenticate'
   get 'logout', to: 'blacklisting#blacklist'
   get 'activation/:id', to: 'registration#confirm_email'

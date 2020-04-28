@@ -12,7 +12,7 @@ class RecoverPassword
     private
     def recover
         user = User.find_by_email(@email)
-        if user
+        if user and not user.oauth
             temp_pass = SecureRandom.base64.to_s
             
             user.temp_pass = temp_pass
@@ -20,6 +20,8 @@ class RecoverPassword
             user.save
 
             UserMailer.recovery_password(user, temp_pass).deliver
+        elsif user.oauth
+            errors.add(:user, 'User created with oAuth')
         else
             errors.add(:user, 'User not found')
         end
