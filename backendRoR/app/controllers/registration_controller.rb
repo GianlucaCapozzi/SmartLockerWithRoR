@@ -7,7 +7,7 @@ class RegistrationController < ActionController::API
             render json: { 
                 response: "success",
                 result: "User registered",
-                auth_token: command.result
+                conf_token: command.result
                 }, status: :ok
         else
             render json: { 
@@ -40,6 +40,10 @@ class RegistrationController < ActionController::API
         user.confirm_token = nil
         user.save
 
-        BlacklistedToken.where(user_id: user.id).first.delete
+        # delete all the blacklisted configuration tokens
+        list_config_token = BlacklistedToken.where(user_id: user.id)
+        for el in list_config_token
+            BlacklistedToken.destroy(el.id)
+        end
     end
 end

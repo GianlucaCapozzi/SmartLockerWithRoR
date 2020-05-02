@@ -21,60 +21,62 @@ class ConfigureProfile
 
     def complete
         if check_token
-            #############################
-            #@user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token        # DEBUG ONLY PLEASE UNCOMMENT IT !!!
-            # DEBUG ONLY PLEASE DELETE IT !!!
-            if User.exists?(email: http_auth_header)
-                @user ||= User.find_by_email(http_auth_header)                              
-            else
-                @user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token
-            end
-            #############################
+            @user ||= user
 
             if @user
                 @user.img = @img                if (not @img.nil?) and (not @img.empty?)
                 @user.name = @name              if (not @name.nil?) and (not @name.empty?)
                 @user.surname = @surname        if (not @surname.nil?) and (not @surname.empty?)
                 @user.gender = @gender          if (not @gender.nil?) and (not @gender.empty?) and (@gender == 'M' or @gender == 'F')
-                @user.age = @age                if (not @age.nil?) and (not @age.empty?) and @age.to_i > 0
-                @user.weight = @weight          if (not @weight.nil?) and (not @weight.empty?) and @weight.to_f > 0
+                @user.age = @age                if (not @age.nil?) and (not @age.to_s.empty?) and @age.to_i > 0
+                @user.weight = @weight          if (not @weight.nil?) and (not @weight.to_s.empty?) and @weight.to_f > 0
+                @user.configure_token = nil
                 @user.info_completed = true
                 @user.save
             else
-                errors.add(:user, 'User not found')
+                errors.add(:user, 'Invalid token')
             end
-        else
         end
     end
 
     def user
-        @user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token
+        @user ||= User.find_by_configure_token(http_auth_header)                    #in case of one-time token
+        @user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token     #in case of jwt token
         @user || errors.add(:token, 'Invalid token') && nil
     end
 
     def check_token
-        #############################
-        # DEBUG ONLY PLEASE DELETE IT
-        if User.find_by_email(http_auth_header)
-            return true
-        end
-        #############################
-
-        if decoded_auth_token.nil?
-            errors.add(:token, 'Invalid token')
+        #Token not present
+        if http_auth_header.nil?
+            errors.add(:token, 'Missing token')
             return false
         end
 
-        @decoded_token = decoded_auth_token
-        if @decoded_token[:exp] < Time.now.to_i
-            errors.add(:token, 'Token expired, please login again')
-            return false
-        elsif BlacklistedToken.exists?(token: http_auth_header)
-            errors.add(:token, 'Token in blacklist, please login again')
-            return false
+        #One-time token
+        if User.exists?(configure_token: http_auth_header)
+            if BlacklistedToken.exists?(token: http_auth_header)
+                errors.add(:token, 'Token in blacklist, please activate account before')
+                return false
+            else
+                return true
+            end
+        #JWT token
+        elsif decoded_auth_token and User.exists?(decoded_auth_token[:user_id])
+            token = decoded_auth_token
+            if BlacklistedToken.exists?(token: http_auth_header)
+                errors.add(:token, 'Token in blacklist, please activate account before')
+                return false
+            elsif token[:exp] < Time.now.to_i
+                errors.add(:token, 'Token in blacklist, please login again')
+                return false
+            else
+                return true
+            end
+        #Invalid token
         else
-            return true
+            errors.add(:token, 'Token not valid')
         end
+
     end
 
     def decoded_auth_token
