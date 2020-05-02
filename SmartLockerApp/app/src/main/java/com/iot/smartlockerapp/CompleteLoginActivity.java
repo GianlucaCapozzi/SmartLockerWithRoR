@@ -31,6 +31,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.facebook.AccessToken;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +49,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import butterknife.BindView;
@@ -84,6 +86,8 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
     private String token;
     private String email;
+    private String base64Credentials;
+    private String username;
 
     private int setFromAct;
 
@@ -106,10 +110,10 @@ public class CompleteLoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         int fromAct = getIntent().getIntExtra("fromActivity", 0);
-        if(fromAct == 1) {
+        if(fromAct == LoginActivity.IS_OAUTH) {
             // FACEBOOK OAUTH LOGIN
 
-            setFromAct = 1;
+            setFromAct = LoginActivity.IS_OAUTH;
 
             imageUri = getIntent().getStringExtra("image");
             byte[] decodedString = Base64.decode(imageUri, Base64.DEFAULT);
@@ -122,11 +126,12 @@ public class CompleteLoginActivity extends AppCompatActivity {
             surname = String.join(" ", usname);
             _nameText.setText(name);
             _surnText.setText(surname);
-
         }
 
         else {
+            // Normal signup
             setFromAct = IS_SIGNUP;
+            base64Credentials = getIntent().getStringExtra("base64credentials");
         }
 
         SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -326,7 +331,7 @@ public class CompleteLoginActivity extends AppCompatActivity {
                     .post(postBody)
                     .header("Accept", "application/json")
                     .header("Content-Type", "application/json")
-                    .header("Authorization", email)
+                    .header("Authorization", token)
                     .build();
 
             try {
@@ -363,21 +368,34 @@ public class CompleteLoginActivity extends AppCompatActivity {
     private void onCompleteSignSuccess() {
         _signupButton.setEnabled(true);
         setResult(RESULT_OK, null);
+        JSONObject loginForm = new JSONObject();
+        String logUrl = MainActivity.url;
+        if(setFromAct == IS_SIGNUP) {
+            // SILENT LOGIN FROM NORMAL SIGNUP
+            Log.d(TAG, "SIGNUP SILENT LOGIN");
+            try {
+                loginForm.put("email", email);
+                loginForm.put("password", base64Credentials);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            logUrl += "/login";
+        }
 
-        String username = name + " " + surname;
-
-        Intent i = new Intent(this, MainActivity.class);
-
-        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                .edit()
-                .putString("user", username)
-                .putString("email", email)
-                .putString("gender", gender)
-                .putString("image", imageUri)
-                .putInt("fromActivity", setFromAct)
-                .apply();
-
-        startActivity(i);
+        else {
+            // SILENT LOGIN FROM FACEBOOK
+            Log.d(TAG, "FACEBOOK SILENT LOGIN");
+            AccessToken accessToken = AccessToken.getCurrentAccessToken();
+            try {
+                loginForm.put("email", email);
+                loginForm.put("token_oauth", accessToken.getToken());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            logUrl += "/oauth";
+        }
+        RequestBody body = RequestBody.create(loginForm.toString(), MediaType.parse("application/json; charset=utf-8"));
+        postLoginRequest(logUrl, body);
     }
 
     private void onCompleteSignFailed() {
@@ -385,6 +403,105 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         _signupButton.setEnabled(true);
 
+    }
+
+    public void postLoginRequest(String postUrl, RequestBody postBody) {
+
+        HttpLoginPostAsyncTask okHttpAsync = new HttpLoginPostAsyncTask(postBody);
+        okHttpAsync.execute(postUrl);
+
+    }
+
+    private class HttpLoginPostAsyncTask extends AsyncTask<String, Void, byte[]> {
+
+        RequestBody postBody;
+        private String resp;
+
+        private HttpLoginPostAsyncTask(RequestBody postBody) {
+            this.postBody = postBody;
+            resp = "";
+        }
+
+        @Override
+        protected byte[] doInBackground(String... strings) {
+
+            Log.d(TAG, "SILENT LOGIN request done");
+
+            String postUrl = strings[0];
+            Log.d(TAG, postUrl);
+
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .build();
+
+            final Request request = new Request.Builder()
+                    .url(postUrl)
+                    .post(postBody)
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                resp = response.body().string();
+                Log.d(TAG, resp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+            Log.d("RESPONSE", "RESPONSE" + resp);
+            try {
+                JSONObject json = new JSONObject(resp);
+                String responseString = json.getString("response");
+                Log.d("RESPONSE", responseString);
+                if (responseString.equals("success")) {
+                    username = json.getString("name") + " " + json.getString("surname");
+                    imageUri = json.getString("photo");
+                    token = json.getString("auth_token");
+                    gender = json.getString("gender");
+                    Log.d(TAG, "TOKEN: " + token);
+                    onLoginSuccess();
+                } else {
+                    Log.d("ERR", responseString);
+                    Log.d("ERR", "onResponse failed");
+                    AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(CompleteLoginActivity.this, R.style.MyAlertDialog)).create();
+                    alertDialog.setTitle("Complete Signup");
+                    alertDialog.setMessage("Something were wrong, try again!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private void onLoginSuccess() {
+        Intent i = new Intent(this, MainActivity.class);
+
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putString("user", username)
+                .putString("email", email)
+                .putString("gender", gender)
+                .putString("auth_token", token)
+                .putString("image", imageUri)
+                .putInt("fromActivity", setFromAct)
+                .apply();
+
+        startActivity(i);
     }
 
     private boolean validate() {
@@ -406,4 +523,10 @@ public class CompleteLoginActivity extends AppCompatActivity {
 
         return valid;
     }
+
+    /*
+    String username = name + " " + surname;
+
+
+     */
 }

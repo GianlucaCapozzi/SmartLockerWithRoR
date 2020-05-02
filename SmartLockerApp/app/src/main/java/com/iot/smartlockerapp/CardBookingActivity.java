@@ -471,7 +471,7 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
         okHttpAsync.execute(postUrl);
     }
 
-    private void deleteBooking(String bookID, String parkName, String city, String lockHash){
+    private void deleteBooking(String bookID, String city, String parkName, String lockHash){
 
         Map<String, Object> lock = new HashMap<>();
         if(lockState == true) {
@@ -482,6 +482,9 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
         lockState = false;
 
         String cityPark = city+parkName;
+
+        //db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
+        Log.d(TAG, "City: " + city + ", cityPark: " + cityPark.hashCode() + ", lockHash: " + lockHash);
 
         db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers").document(lockHash)
                 .set(lock, SetOptions.merge())

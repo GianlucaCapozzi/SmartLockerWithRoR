@@ -55,7 +55,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
 
-    private static final int IS_LOG = 1;
+    public static final int IS_LOG = 1;
+    public static final int IS_OAUTH = 5;
 
     private String user;
     private String image;
@@ -99,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
         int fromActivity = pref.getInt("fromActivity", 0);
         boolean rem_me;
 
-        if(fromActivity == 1) {
+        if(fromActivity == 1) { // IS_LOGIN = 1
             rem_me = pref.getBoolean("remember", true);
             if (rem_me == false) {
                 getSharedPreferences(PREFS_NAME, 0).edit().remove("user").apply();
@@ -109,43 +110,45 @@ public class LoginActivity extends AppCompatActivity {
                 getSharedPreferences(PREFS_NAME, 0).edit().remove("password").apply();
             }
             else {
-                AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                if(accessToken != null && !accessToken.isExpired()) {
-                    Log.d(TAG, "In FACEBOOK LOGIN");
-                    useLoginInformation(accessToken);
-                }
-                else if(accessToken.isExpired()) {
-                    AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(LoginActivity.this, R.style.MyAlertDialog)).create();
-                    alertDialog.setTitle("LOGIN INFORMATION");
-                    alertDialog.setMessage("Session expired, you must login again!");
-                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                    alertDialog.show();
-                }
-                else if(accessToken == null) {
-                    String get_email = pref.getString("email", null);
-                    _emailText.setText(get_email);
-                    _emailText.setFocusable(false);
-                    _passwordText.setText("EXAMPLE PASSWORD");
-                    _passwordText.setFocusable(false);
-                    login();
-                }
+                String get_email = pref.getString("email", null);
+                _emailText.setText(get_email);
+                _emailText.setFocusable(false);
+                _passwordText.setText("EXAMPLE PASSWORD");
+                _passwordText.setFocusable(false);
+                login();
             }
             getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
         }
 
-        else if(fromActivity == 2 || fromActivity == 3 || fromActivity == 4) {
+        else if(fromActivity == 2 || fromActivity == 3) { // IS_SIGNUP = 2, IS_RESET = 3
             getSharedPreferences(PREFS_NAME, 0).edit().remove("user").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("email").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("image").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("gender").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
             getSharedPreferences(PREFS_NAME, 0).edit().remove("password").apply();
+        }
+        else if(fromActivity == 5) { // IS_OAUTH = 5
+            Log.d(TAG, "FROM OAUTH");
+            AccessToken accessToken = AccessToken.getCurrentAccessToken();
+            if(accessToken != null && !accessToken.isExpired()) {
+                Log.d(TAG, "In FACEBOOK LOGIN");
+                getSharedPreferences(PREFS_NAME, 0).edit().remove("auth_token").apply();
+                useLoginInformation(accessToken);
+            }
+            else if(accessToken.isExpired()) {
+                AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(LoginActivity.this, R.style.MyAlertDialog)).create();
+                alertDialog.setTitle("LOGIN INFORMATION");
+                alertDialog.setMessage("Session expired, you must login again!");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            }
         }
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
@@ -274,7 +277,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void postLoginRequest(String postUrl, RequestBody postBody) {
+    public void postLoginRequest(String postUrl, RequestBody postBody) {
 
         HttpLoginPostAsyncTask okHttpAsync = new HttpLoginPostAsyncTask(postBody);
         okHttpAsync.execute(postUrl);
@@ -327,18 +330,37 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 JSONObject json = new JSONObject(resp);
                 String responseString = json.getString("response");
+
                 Log.d("RESPONSE", responseString);
                 if (responseString.equals("success")) {
                     user = json.getString("name") + " " + json.getString("surname");
                     image = json.getString("photo");
-                    token = json.getString("auth_token");
                     gender = json.getString("gender");
+                    token = json.getString("auth_token");
                     Log.d(TAG, "TOKEN: " + token);
                     onLoginSuccess();
                 } else {
+                    // HANDLE COMPLETE LOGIN CASE
                     Log.d("ERR", responseString);
                     Log.d("ERR", "onResponse failed");
-                    onLoginFailed();
+                    JSONObject error = json.getJSONObject("error");
+                    if(error.has("user_authentication")) {
+                        token = json.getString("conf_token");
+                        onLoginFailed();
+                    }
+                    else {
+                        AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(LoginActivity.this, R.style.MyAlertDialog)).create();
+                        alertDialog.setTitle("Server error");
+                        alertDialog.setMessage("The server is temporarily unavailable, try later! Sorry for the drawback.");
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                        alertDialog.show();
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -450,7 +472,30 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+
+        AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(LoginActivity.this, R.style.MyAlertDialog)).create();
+        alertDialog.setTitle("Check");
+        alertDialog.setMessage("Your profile is not complete, please fill the next form!");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        String email = _emailText.getText().toString();
+                        String password = _passwordText.getText().toString();
+                        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                                .edit()
+                                .putString("auth_token", token)
+                                .putString("password", password)
+                                .apply();
+                        Intent i = new Intent(getApplicationContext(), CompleteLoginActivity.class);
+                        i.putExtra("fromActivity", IS_LOG);
+                        i.putExtra("email", email);
+                        i.putExtra("base64credentials", base64Credentials);
+                        startActivity(i);
+                    }
+                });
+        alertDialog.show();
 
         _loginButton.setEnabled(true);
     }
@@ -633,16 +678,17 @@ public class LoginActivity extends AppCompatActivity {
                 String responseString = json.getString("response");
                 Log.d(TAG, responseString);
                 String accType = json.getString("type");
-                token = json.getString("auth_token");
+
                 if (responseString.equals("success")) {
                     Log.d(TAG, responseString);
                     if(accType.equals("signup")) {
+                        token = json.getString("conf_token");
                         onSignupFacebookSuccess();
                     }
                     else if(accType.equals("login")){
+                        token = json.getString("auth_token");
                         user = json.getString("name") + " " + json.getString("surname");
                         image = json.getString("photo");
-                        token = json.getString("auth_token");
                         gender = json.getString("gender");
                         onLogFacebookSuccess();
                     }
@@ -662,8 +708,30 @@ public class LoginActivity extends AppCompatActivity {
                                 });
                         alertDialog.show();
                     }
-                    Log.d(TAG, "onResponse failed");
-                    onLogFacebookFailed();
+                    else if(accType.equals("login") && error.has("user_authentication")){
+                        token = json.getString("conf_token");
+                        AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(LoginActivity.this, R.style.MyAlertDialog)).create();
+                        alertDialog.setTitle("Check");
+                        alertDialog.setMessage("Your profile is not complete, please fill the next form!");
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                                                .edit()
+                                                .putString("auth_token", token)
+                                                .apply();
+                                        Intent i = new Intent(getApplicationContext(), CompleteLoginActivity.class);
+                                        i.putExtra("fromActivity", IS_OAUTH);
+                                        i.putExtra("email", fb_email);
+                                        i.putExtra("image", image);
+                                        i.putExtra("username", fb_name);
+                                        startActivity(i);
+                                    }
+                                });
+                        alertDialog.show();
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -682,8 +750,7 @@ public class LoginActivity extends AppCompatActivity {
                 .putString("image", image)
                 .putString("gender", gender)
                 .putString("auth_token", token)
-                .putInt("fromActivity", IS_LOG)
-                .putBoolean("remember", true)
+                .putInt("fromActivity", IS_OAUTH)
                 .apply();
         startActivity(i);
     }
@@ -692,20 +759,15 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG, "onSignupFacebookSuccess");
         getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                 .edit()
-                .putString("auth_token", fb_accessToken.getToken())
-                .putBoolean("remember", true)
+                .putString("auth_token", token)
+                .putInt("fromActivity", IS_OAUTH)
                 .apply();
         Intent i = new Intent(getApplicationContext(), CompleteLoginActivity.class);
-        i.putExtra("fromActivity", IS_LOG);
+        i.putExtra("fromActivity", IS_OAUTH);
         i.putExtra("email", fb_email);
         i.putExtra("image", image);
         i.putExtra("username", fb_name);
         startActivity(i);
-    }
-
-    private void onLogFacebookFailed() {
-        Log.d(TAG, "onLogFacebookFailed");
-
     }
 
     private boolean validate() {

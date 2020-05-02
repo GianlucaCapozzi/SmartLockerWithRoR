@@ -16,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.facebook.AccessToken;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,10 +33,7 @@ import okhttp3.Response;
 
 public class DeleteActivity extends AppCompatActivity {
 
-    private static final int IS_DEL = 4;
-
     private String token;
-    private String email;
 
     @BindView(R.id.input_delete_pwd) EditText _deletePwd;
     @BindView(R.id.input_conf_delete_pwd) EditText _confDeletePwd;
@@ -82,23 +81,35 @@ public class DeleteActivity extends AppCompatActivity {
 
         SharedPreferences pref = this.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String email = pref.getString("email", null);
-        String pwd = _deletePwd.getText().toString();
 
         token = pref.getString("auth_token", null);
 
-        String credentials = email + ":" + pwd;
-        String base64Credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+        JSONObject deleteForm = new JSONObject();
 
-        try {
-            JSONObject deleteForm = new JSONObject();
-
-            deleteForm.put("password", base64Credentials);
-
-            RequestBody body = RequestBody.create(deleteForm.toString(), MediaType.parse("application/json; charset=utf-8"));
-            sendDeleteRequest(MainActivity.url+"/deleteaccount", body);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if(accessToken != null && !accessToken.isExpired()) {
+            _deletePwd.setVisibility(View.GONE);
+            try {
+                deleteForm.put("password", accessToken.getToken());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
+        else {
+            String pwd = _deletePwd.getText().toString();
+            String credentials = email + ":" + pwd;
+            String base64Credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+            try {
+                deleteForm.put("password", base64Credentials);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        RequestBody body = RequestBody.create(deleteForm.toString(), MediaType.parse("application/json; charset=utf-8"));
+        sendDeleteRequest(MainActivity.url+"/deleteaccount", body);
+
+
 
 
     }
@@ -153,10 +164,7 @@ public class DeleteActivity extends AppCompatActivity {
                 String responseString = json.getString("response");
                 Log.d(TAG, responseString);
                 if(responseString.equals("success")) {
-                    getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                            .edit()
-                            .putInt("fromActivity", IS_DEL)
-                            .apply();
+                    getSharedPreferences(PREFS_NAME, 0).edit().clear().apply();
                     AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(DeleteActivity.this, R.style.MyAlertDialog)).create();
                     alertDialog.setTitle("Delete account");
                     alertDialog.setMessage("The account was successfully deleted!");

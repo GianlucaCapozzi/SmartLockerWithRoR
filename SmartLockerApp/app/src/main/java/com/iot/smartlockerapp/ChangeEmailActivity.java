@@ -318,77 +318,8 @@ public class ChangeEmailActivity extends AppCompatActivity {
             }
         });
 
-        // CHANGE LOCKERS
     }
 
-    /*
-    private void startChangeEmailWS() {
 
-        String token = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString("auth_token", null);
-
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(MainActivity.url + "/changemail")
-                .header("Authorization", token)
-                .build();
-        EmailWebSocketListener listener = new EmailWebSocketListener();
-        WebSocket ws = client.newWebSocket(request, listener);
-        client.dispatcher().executorService().shutdown();
-
-    }
-
-    private final class EmailWebSocketListener extends WebSocketListener {
-
-        private static final int NORMAL_CLOSURE_STATUS = 1000;
-
-        @Override
-        public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
-            super.onOpen(webSocket, response);
-
-            String email = _textEmail.getText().toString();
-
-            JSONObject regForm = new JSONObject();
-
-            try {
-                regForm.put("email", email);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            webSocket.send(regForm.toString());
-
-        }
-
-        @Override
-        public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-            super.onClosed(webSocket, code, reason);
-        }
-
-        @Override
-        public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-            super.onClosing(webSocket, code, reason);
-            webSocket.close(NORMAL_CLOSURE_STATUS, null);
-            webSocket.cancel();
-        }
-
-        @Override
-        public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @org.jetbrains.annotations.Nullable Response response) {
-            super.onFailure(webSocket, t, response);
-        }
-
-        @Override
-        public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
-            super.onMessage(webSocket, text);
-            // HANDLE EMAIL CHANGE
-        }
-
-        @Override
-        public void onMessage(@NotNull WebSocket webSocket, @NotNull ByteString bytes) {
-            super.onMessage(webSocket, bytes);
-        }
-
-    }
-     */
 
 }

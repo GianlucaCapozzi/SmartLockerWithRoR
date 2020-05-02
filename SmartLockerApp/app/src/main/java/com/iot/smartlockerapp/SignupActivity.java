@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,7 +42,6 @@ public class SignupActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "SmartLockSettings";
     private static final int IS_SIGNUP = 0;
 
-    //@BindView(R.id.input_name) EditText _nameText;
     @BindView(R.id.input_email) EditText _emailText;
     @BindView(R.id.input_password) EditText _passwordText;
     @BindView(R.id.input_reEnterPassword) EditText _reEnterPasswordText;
@@ -50,6 +50,8 @@ public class SignupActivity extends AppCompatActivity {
 
     private String base64Credentials;
     private String token;
+    private String email;
+    private String password;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,8 +96,8 @@ public class SignupActivity extends AppCompatActivity {
 
         _signupButton.setEnabled(false);
 
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+        email = _emailText.getText().toString();
+        password = _passwordText.getText().toString();
 
         String credentials = email + ":" + password;
         base64Credentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
@@ -146,7 +148,9 @@ public class SignupActivity extends AppCompatActivity {
             String postUrl = strings[0];
             Log.d("SIGNUP ACTIVITY", postUrl);
 
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .build();
 
             final Request request = new Request.Builder()
                     .url(postUrl)
@@ -174,7 +178,7 @@ public class SignupActivity extends AppCompatActivity {
                 String responseString = json.getString("response");
                 Log.d("RESPONSE", responseString);
                 if (responseString.equals("success")) {
-                    token = json.getString("auth_token");
+                    token = json.getString("conf_token");
                     Log.d(TAG, "TOKEN: " + token);
                     onSignupSuccess();
                 } else {
@@ -205,10 +209,12 @@ public class SignupActivity extends AppCompatActivity {
                         getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                                 .edit()
                                 .putString("auth_token", token)
+                                .putString("password", password)
                                 .apply();
                         Intent i = new Intent(getApplicationContext(), CompleteLoginActivity.class);
                         i.putExtra("fromActivity", IS_SIGNUP);
-                        i.putExtra("email", _emailText.getText().toString());
+                        i.putExtra("email", email);
+                        i.putExtra("base64credentials", base64Credentials);
                         startActivity(i);
                     }
                 });
