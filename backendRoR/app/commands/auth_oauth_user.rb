@@ -7,18 +7,31 @@ class AuthOauthUser
     end
   
     def call
-        check = user(get_info_token_oauth)
-        check if check
+        res = check(get_info_token_oauth)
+        if res == 'OK'
+            return get_id
+        elsif res == 'Not completed'
+            return get_configure_token
+        end
+        nil
     end
 
     private
   
-    def user(id_oauth)
+    def check(id_oauth)
         user = User.find_by(id_oauth: id_oauth)
-        return user if user && user.oauth && user.email==@email && user.email_confirmed && user.info_completed
-
-        errors.add(:user_authentication, 'Token not valid')
-        nil
+        if user and user.oauth and user.email==@email
+            if not (user.email_confirmed and user.info_completed)
+                create_conf_token(user)
+                errors.add(:user_authentication, 'User not completed')
+                return 'Not completed'
+            else
+                return 'OK'
+            end
+        else
+            errors.add(:user_authentication, 'Token not valid')
+            return 'Token not valid'
+        end
     end
 
     def get_info_token_oauth
@@ -34,5 +47,20 @@ class AuthOauthUser
             errors.add(:token, 'Token not valid')
         end
         nil
+    end
+
+    def create_conf_token(user)
+        if user.configure_token.nil?
+            user.configure_token = SecureRandom.urlsafe_base64.to_s
+            user.save
+        end
+    end
+
+    def get_id
+        User.find_by_email(@email)['id']
+    end
+
+    def get_configure_token
+        User.find_by_email(@email)['configure_token']
     end
 end

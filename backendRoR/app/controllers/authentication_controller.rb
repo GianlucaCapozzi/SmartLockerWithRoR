@@ -18,7 +18,8 @@ class AuthenticationController < ApplicationController
         else
             render json: { 
                 response: "failure",
-                error: command.errors 
+                error: command.errors,
+                conf_token: command.result  #nil if credentials not valid
                 }, status: :unauthorized
         end
     end

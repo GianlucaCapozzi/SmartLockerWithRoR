@@ -11,7 +11,7 @@ class OauthController < ApplicationController
                 render json: { 
                     response: "success",
                     type: "signup",
-                    auth_token: command.result
+                    conf_token: command.result
                     }, status: :ok
             else
                 render json: { 
@@ -25,8 +25,8 @@ class OauthController < ApplicationController
             command = AuthOauthUser.call(params[:email], params[:token_oauth])
             
             if command.success?
-                user_info = User.find(command.result.id)
-                token = JsonWebToken::encode(user_id: command.result.id)
+                user_info = User.find(command.result)
+                token = JsonWebToken::encode(user_id: command.result)
                 render json: { 
                     response: "success",
                     type: "login",
@@ -41,7 +41,8 @@ class OauthController < ApplicationController
                 render json: { 
                     response: "failure",
                     type: "login",
-                    error: command.errors 
+                    error: command.errors,
+                    conf_token: command.result
                     }, status: :unauthorized
             end
         else
@@ -56,6 +57,7 @@ class OauthController < ApplicationController
 
     attr_accessor :token_oauth
 
+    # Function to check if there is an user with user_id equalt to token's one 
     def check_token
         id_oauth = get_id_oauth
         if not id_oauth.nil?
@@ -69,6 +71,7 @@ class OauthController < ApplicationController
         end
     end
 
+    # Function to check if the oauth token is valid
     def get_id_oauth
         response = HTTParty.get('https://graph.facebook.com/debug_token?input_token='+params[:token_oauth]+'&access_token='+ENV["APP_ID_FACEBOOK"]+'|'+ENV["SECRET_KEY_FACEBOOK"])
         if response.code == 200

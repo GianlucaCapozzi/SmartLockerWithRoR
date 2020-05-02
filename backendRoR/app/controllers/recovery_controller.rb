@@ -22,7 +22,7 @@ class RecoveryController < ActionController::API
             user = User.find(check.result.id)
             if user
                 if user.oauth == nil or not user.oauth
-                    if not ( param[:new_email] and User.exist?(email: param[:new_email]) )
+                    if not ( params[:new_email] and User.exists?(email: params[:new_email]) )
                         old_mail = user.email
                         set_email(user)
                         UserMailer.email_changed(old_mail, user).deliver

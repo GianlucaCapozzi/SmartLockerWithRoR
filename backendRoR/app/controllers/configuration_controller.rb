@@ -1,6 +1,5 @@
 class ConfigurationController < ApplicationController
-    #before_action :authenticate_request        # DEBUG ONLY PLEASE UNCOMMENT IT !!!
-    skip_before_action :authenticate_request    # DEBUG ONLY PLEASE DELETE IT !!!
+    skip_before_action :authenticate_request                #because it uses a special token
 
     def configure
         command = ConfigureProfile.call(request.headers, params[:img], params[:name], params[:surname], params[:gender], params[:age], params[:weight])
