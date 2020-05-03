@@ -192,10 +192,13 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
                 }
             });
 
-            String lockPark = city + parkName + lockName;
+            //String lockPark = city + parkName + lockName;
 
-            final String bookID = user + " " + city + " " + parkName + " " + date + " " + lockPark.hashCode();
-            Log.d(TAG, "BookID: " + bookID);
+            String lockPark = city + parkName + lockName;
+            int lockParkHash = lockPark.hashCode();
+
+            final String bookID = user + " " + city + " " + parkName + " " + date + " " + lockParkHash;
+            Log.d(TAG, "BookID: " + lockPark + ", HASH: " + lockParkHash);
 
             DateFormat dateFormat = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
 
@@ -230,6 +233,7 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
             leave.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d(TAG, "BOOK ID: " + bookID);
                     leaveLocker(bookID, city, parkName, lockHash);
                 }
             });
@@ -421,6 +425,8 @@ public class CardBookingActivity extends AppCompatActivity implements SensorEven
                 booking.put("leave", leaveTime);
                 booking.put("rating", Float.toString(ratingValue));
                 booking.put("km", Float.toString(km));
+
+                Log.d(TAG, "BOOKHASH: " + bookID.hashCode());
 
                 db.collection("bookings").document(Integer.toString(bookID.hashCode()))
                         .set(booking, SetOptions.merge())
