@@ -1,5 +1,7 @@
 package com.iot.smartlockerapp;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -11,6 +13,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,10 +75,12 @@ public class MainActivity extends AppCompatActivity {
         final BottomNavigationView bottomNavigation = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+
         dl = (DrawerLayout) findViewById(R.id.activity_main);
         t = new ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close) {
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
+                hideSoftKeyboard(getApplicationContext(), getCurrentFocus());
                 invalidateOptionsMenu();
             }
             public void onDrawerClosed(View view) {
@@ -101,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
                         getSupportActionBar().setTitle("Booking");
                         openFragment(HomeFragment.newInstance());
                         bottomNavigation.setVisibility(View.VISIBLE);
+                        bottomNavigation.setSelectedItemId(R.id.navigation_home);
                         dl.closeDrawers();
                         return true;
                     case R.id.account:
@@ -166,6 +172,12 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static void hideSoftKeyboard(Context context, View view) {
+
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private void logout() {

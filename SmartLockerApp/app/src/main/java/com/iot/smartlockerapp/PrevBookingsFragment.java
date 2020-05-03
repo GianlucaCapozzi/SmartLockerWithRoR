@@ -1,6 +1,7 @@
 package com.iot.smartlockerapp;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -74,6 +75,11 @@ public class PrevBookingsFragment extends Fragment {
         getUserDisabledBookings();
 
         return v;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.iot.smartlockerapp;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -128,6 +129,11 @@ public class CardToBookActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
     private void getNearBookings(){

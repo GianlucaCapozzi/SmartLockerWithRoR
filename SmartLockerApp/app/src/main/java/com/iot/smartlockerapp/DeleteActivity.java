@@ -12,16 +12,28 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.facebook.AccessToken;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +46,8 @@ import okhttp3.Response;
 public class DeleteActivity extends AppCompatActivity {
 
     private String token;
+    private String email;
+    private FirebaseFirestore db;
 
     @BindView(R.id.input_delete_pwd) EditText _deletePwd;
     @BindView(R.id.input_conf_delete_pwd) EditText _confDeletePwd;
@@ -80,7 +94,7 @@ public class DeleteActivity extends AppCompatActivity {
         }
 
         SharedPreferences pref = this.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String email = pref.getString("email", null);
+        email = pref.getString("email", null);
 
         token = pref.getString("auth_token", null);
 
@@ -164,6 +178,7 @@ public class DeleteActivity extends AppCompatActivity {
                 String responseString = json.getString("response");
                 Log.d(TAG, responseString);
                 if(responseString.equals("success")) {
+                    //onDeleteSuccess();
                     getSharedPreferences(PREFS_NAME, 0).edit().clear().apply();
                     AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(DeleteActivity.this, R.style.MyAlertDialog)).create();
                     alertDialog.setTitle("Delete account");
@@ -195,6 +210,55 @@ public class DeleteActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void onDeleteSuccess() {
+        Query bookings = db.collection("bookings")
+                .whereEqualTo("user", email)
+                .whereEqualTo("active", true);
+
+        bookings.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+
+                        // DELETE CURRENT DOCUMENT
+                        String city = (String) document.get("city");
+
+                        String lockHash = (String) document.get("lockHash");
+                        String park = (String) document.get("park");
+
+                        db.collection("bookings").document(document.getId()).delete();
+
+                        // RESET LOCKER
+                        Map<String, Object> lock = new HashMap<>();
+                        lock.put("user", "");
+                        lock.put("open", false);
+                        lock.put("available", true);
+
+                        String cityPark = city + park;
+
+                        db.collection("cities/"+city.hashCode()+"/parks/"+cityPark.hashCode()+"/lockers")
+                                .document(lockHash)
+                                .set(lock, SetOptions.merge())
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error writing document", e);
+                                    }
+                                });
+
+                    }
+                }
+            }
+        });
     }
 
     private boolean validate() {

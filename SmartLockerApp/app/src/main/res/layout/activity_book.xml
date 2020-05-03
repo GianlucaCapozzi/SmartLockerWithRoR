@@ -22,10 +22,9 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/toBookRV"
-        android:layout_width="403dp"
-        android:layout_height="664dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="76dp"
         android:textSize="18sp"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"

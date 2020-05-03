@@ -54,7 +54,9 @@
         <activity
             android:name=".LoginActivity"
             android:noHistory="true"
-            android:theme="@style/AppTheme.Dark">
+            android:theme="@style/AppTheme.Dark"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -63,6 +65,8 @@
         <activity
             android:name=".ForgotPasswordActivity"
             android:theme="@style/AppTheme.Dark"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity"
             android:parentActivityName=".LoginActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -71,16 +75,22 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/AppTheme.Dark"/>
         <activity
             android:name=".SignupActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity"
             android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".CompleteLoginActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity"
             android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".BookActivity"
             android:parentActivityName=".MainActivity"
+            android:configChanges="screenSize|keyboardHidden"
             android:theme="@style/AppTheme.Dark">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -95,6 +105,7 @@
                 android:value=".BookActivity" />
         </activity>
         <activity android:name=".CardToBookActivity"
+            android:configChanges="screenSize|keyboardHidden"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.Dark">
             <meta-data
