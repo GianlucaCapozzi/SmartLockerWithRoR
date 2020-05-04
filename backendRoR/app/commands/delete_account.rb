@@ -23,6 +23,7 @@ class DeleteAccount
                     user = check.result
                     
                     destroyaccount(user)
+                    deletependingbooking(user)
                 else
                     errors.add(:password, 'Wrong password')
                 end
@@ -57,8 +58,9 @@ class DeleteAccount
     # delete pending booking in firebase to avoid locker deadlock
     def deletependingbooking(user)
         body = JSON.parse(HTTParty.get('https://firestore.googleapis.com/v1beta1/projects/'+ENV["FIREBASE"]+'/databases/(default)/documents/bookings').body)
+        list = body["documents"]
 
-        for el in body["documents"]
+        for el in list
             # pending booking
             if el["fields"]["user"]["stringValue"] == user.email and el["fields"]["active"]["booleanValue"]
                 name = el["name"]
@@ -75,7 +77,6 @@ class DeleteAccount
                 new_body["fields"]["available"]["booleanValue"] = true
                 new_body["fields"]["open"]["booleanValue"] = false
                 
-                new_body = JSON.generate(new_body)
                 HTTParty.patch('https://firestore.googleapis.com/v1beta1/projects/'+ENV["FIREBASE"]+'/databases/(default)/documents/cities/'+hash_code(city).to_s+'/parks/'+hash_code(city+park).to_s+'/lockers/'+lockHash, 
                                 body: JSON.generate(new_body), headers: {"Content-Type": "application/json"} )
 

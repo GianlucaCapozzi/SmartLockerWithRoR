@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   # General call
   get 'wakeup', to: 'wakeup#wakeup'
+  post 'updaterating', to: 'wakeup#wakeup'
 
   # Calls about profile
   post 'oauth', to: 'oauth#auth_oauth'
